@@ -1,0 +1,259 @@
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-246-            data.errors << [message:'Offer Not Found']
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-247-            data.setStatusCode(HttpStatus.NO_CONTENT)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-248-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-249-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-250-        respond data
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-251-    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-252-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-253-    /**
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-254-     * @param merchantProductOffer
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-255-     * @return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-256-     */
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-257-    def acceptQuote(LakshyaMerchantProductOffer merchantProductOffer) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-258-        def webSite = request['x-website-id'] ? request['x-website-id'].toString() : null
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-259-        def user = UserExtension.get(springSecurityService.principal.id)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-260-        def offer = LakshyaMerchantProductOffer.get(merchantProductOffer?.id?.toString())
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-261-        int quantity = rfqService.getOrderQuantity(offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-262-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-263-        if (ipAddress == null) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-264-            ipAddress = request.getRemoteAddr();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-265-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-266-        if(quantity > 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-267-            def merchant = offer.merchant
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-268-            def product = offer.product
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-269-            def prodLead = offer.productLead
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-270-            def rfqUser = prodLead.user;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy:271:            def dataMap = rfqService.placeOrder(offer, quantity, rfqUser, webSite, ipAddress)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-272-            notify('acceptRFQEvent', ['user':rfqUser?.id?.toString(), 'webSite':webSite, 'merchant':merchant?.id?.toString(), 'product':product?.id?.toString(), 'prodLead':prodLead?.id?.toString()])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-273-            chain(action: "success", params:dataMap)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-274-        }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-275-            flash.message= "Quantity must be greater than zero"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-276-            render model:[merchantProductOffer: merchantProductOffer],view:'/rfq/prodLead/quote'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-277-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-278-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-279-    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-280-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-281-    def success(){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-282-        def offer = LakshyaMerchantProductOffer.get(params.offerId)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-283-        def quant = params["quantity"]
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-284-        rfqService.updateLead(offer, quant);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-285-        render model:[data: params],view:'/rfq/prodLead/success'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-286-    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-287-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-288-    /**
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-289-     * @return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-290-     */
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-291-    def compareQuote() {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-292-        def values = params.offerId
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-293-        def offerList = []
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-294-        values.each{ value ->
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-295-            def offer = LakshyaMerchantProductOffer.get(value);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-296-            if(offer){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-478-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-479-        prodLeadInstance.targetPrice = Double.valueOf(targetPrice)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-480-        prodLeadInstance.quantity = quantity
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-481-        prodLeadInstance.targetDeliveryDate = dateDelivery
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-482-        /*def data = new DataResponse()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-483-        data.setStatusCode(HttpStatus.OK)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-484-        data.setData(merchant)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-485-        def result = data.successResponse.data
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-486-        render result*/
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-487-        //def merchantProductOffer = MerchantProductOffer.findByMerchantAndProductLead(merchant, prodLeadInstance)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-488-        def merchantProductOffer
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-489-        def dataMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-490-        try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-491-            merchantProductOffer = rfqOfferService.createOffer(merchant, prodLeadInstance,false)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-492-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-493-            Integer qty = rfqService.getOrderQuantity(LakshyaMerchantProductOffer.get(merchantProductOffer.id))
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-494-            if(qty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-495-                flash.message= "Quantity must be greater than zero"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-496-                render model:[merchantProductOffer: merchantProductOffer],view:'/rfq/prodLead/quote'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-497-                return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-498-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-499-            boolean orderStatus = true;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-500-            if(prodLeadInstance.rfqStatus != RfqStatusEnum.CONVERTED){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-501-                synchronized(prodLeadInstance.id){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-502-                    if(prodLeadInstance.rfqStatus != RfqStatusEnum.CONVERTED){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy:503:                        dataMap = rfqService.placeOrder(merchantProductOffer,qty,buyer,webSite, ipAddress)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-504-                        prodLeadInstance.rfqStatus = RfqStatusEnum.CONVERTED
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-505-                        prodLeadInstance.active = Boolean.FALSE
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-506-                        prodLeadInstance.respondType=RfqResponseTypeEnum.SELLER
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-507-                        prodLeadInstance.save(flush:true, failOnError:true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-508-                    }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-509-                        orderStatus = false;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-510-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-511-                }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-512-            }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-513-                orderStatus = false;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-514-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-515-            if(!orderStatus){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-516-                flash.message= "Missed chance"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-517-                render model:[merchantProductOffer: merchantProductOffer],view:'/rfq/prodLead/quote'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-518-                return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-519-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-520-            chain(action: "success", params:dataMap)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-521-        }catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-522-            log.error(e.getLocalizedMessage(),e)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-523-            flash.error = "Internal Error"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-524-            render model:[merchantProductOffer: merchantProductOffer],view:'/rfq/prodLead/quote'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-525-            return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-526-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-527-    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaProdLeadController.groovy-528-
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-567-        try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-568-            APILogger apiLogger = new APILogger()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-569-            apiLogger.api = "Fetch Product Price"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-570-            apiLogger.service = "Livguard"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-571-            apiLogger.request = params?params:request.JSON
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-572-            apiLogger.response = responseMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-573-            apiLogger.url = "/api/livguard/getprice.json"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-574-            apiLogger.status = "success"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-575-            apiLogger.save(flush:true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-576-        }catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-577-            e.printStackTrace()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-578-            log.error("Error occurred in writing APILogs fetching livguard details, {}",e)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-579-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-580-        respond data
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-581-        return
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-582-    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-583-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-584-    //Post Order to LTD
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-585-    @Secured(['ROLE_WEBSERVICE'])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-586-    def order(){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-587-        def data = new Data()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-588-        def responseMap = [:]
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-589-        def status ="success"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-590-        def webSite = request['x-website-id'].toString()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-591-        try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy:592:            responseMap = livguardOrderService.placeOrder(webSite,request,session,request.JSON)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-593-            data.data = responseMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-594-            data.setStatusCode(HttpStatus.OK)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-595-        }catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-596-            responseMap["message"] = "Error occurred while saving livguard order: "+e.getLocalizedMessage()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-597-            data.data = responseMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-598-            status = "fail"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-599-            data.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-600-            log.error("Error occurred while saving livguard order, {}",e)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-601-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-602-        try {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-603-            def livguardPayload = [:]
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-604-            livguardPayload.api = "Place Order"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-605-            livguardPayload.service = "Livguard"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-606-            livguardPayload.request = request?.JSON
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-607-            livguardPayload.response = responseMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-608-            livguardPayload.mobile = request?.JSON?.dealerMobileNo
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-609-            livguardPayload.status = status=="fail"?status:responseMap?.status=="fail"?"fail":"success"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-610-            livguardPayload.message = responseMap?.message
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-611-            livguardPayload.url = "/api/livguard/placeorder.json"
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-612-            livguardOrderService.updateLivguardPayload(livguardPayload)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-613-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-614-        catch (Exception ex){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-615-            ex.printStackTrace()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-616-            log.error("Error occurred in writing livgiuard payload:, {}",e)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LivguardOrderController.groovy-617-        }
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-149-                isNull("transferOffer")
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-150-                order("offerPrice", "asc")
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-151-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-152-            offer = offers ? offers[0] : null;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-153-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-154-        def newOrderId = "";
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-155-        try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-156-            //Place a new order for this new merchant
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-157-            if(offer){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-158-                offer.refresh();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-159-                def estimatedDeliveryDays = 1;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-160-                def processingDays = 0;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-161-                if(dateDelivery){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-162-                    long diff = Math.abs(dateDelivery.getTime() - new Date().getTime());
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-163-                    long diffDays = diff / (24 * 60 * 60 * 1000);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-164-                    Integer days = (int) (long) diffDays;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-165-                    if(days < 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-166-                        days = 0;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-167-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-168-                    offer.estimatedDeliveryDays = days;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-169-                    lakshyaUtilsService.offerEventLog(offer, "allocateOrderManagementController");
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-170-                    offer.save(flush:true, failOnError: true);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-171-                    lakshyaUtilsService.offerEventLog(offer, "allocateOrderManagementController");
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-172-                }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-173-            
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy:174:                def resultMap = rfqService.placeOrder(offer, qty, buyer, webSite, ipAddress);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-175-                def saleList = resultMap['saleList'];
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-176-                if(saleList.size()>0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-177-                    newOrderId = saleList[0].orderId;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-178-                }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-179-                newOrderPlaced = true;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-180-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-181-        }catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-182-            log.error(e.getLocalizedMessage(),e);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-183-            e.printStackTrace();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-184-        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-185-        def dataMap = [:];
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-186-        if(newOrderPlaced){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-187-            try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-188-                //Cancel the current order.
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-189-                params.reason = message(code: 'oms.order.cancellation.reason');//"Deliberate cancellation request from OMS panel";
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-190-                def c = orderCancellationService.cancelSubOrder(sale, WhoDidItEnum.MERCHANT, webSite,
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-191-                    params.reason, true, false, 'ROLE_MERCHANT');
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-192-                //Order placed successfully.
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-193-                dataMap['msg'] = "Order ID: ${newOrderId} has been successfully placed for ${newMerchant.displayName}.";
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-194-                dataMap['errMsg'] = null;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-195-            }catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-196-                log.error(e.getLocalizedMessage(),e);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-197-                e.printStackTrace();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-198-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\OrderManagementController.groovy-199-        }else if(offer==null){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-86-			ipAddress = request.getRemoteAddr();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-87-		}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-88-		def lead = ProductLead.get(request.JSON.productLead)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-89-		def usr = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-90-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-91-		def user = User.get(usr.id)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-92-		def merchant = Merchant.findByUser(user)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-93-		def buyer = lead.user;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-94-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-95-		ProdLead productLead = ProdLead.get(lead.id)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-96-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-97-		DataResponse data = new DataResponse()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-98-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-99-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-100-		def offer = MerchantProductOffer.findByMerchantAndProductLead(merchant,lead)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-101-		def resultMap
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-102-		try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-103-			if(!offer){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-104-				offer = rfqOfferService.createOffer(merchant, lead,false);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-105-			}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-106-			Integer quantity = rfqService.getOrderQuantity(LakshyaMerchantProductOffer.get(offer.id))
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-107-			boolean orderStatus = true;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-108-			if(productLead.rfqStatus != RfqStatusEnum.CONVERTED){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-109-				synchronized(productLead.id){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-110-					if(productLead.rfqStatus != RfqStatusEnum.CONVERTED){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy:111:						resultMap = rfqService.placeOrder(offer,quantity,buyer,webSite, ipAddress)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-112-						productLead.rfqStatus = RfqStatusEnum.CONVERTED
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-113-						productLead.active = Boolean.FALSE
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-114-						productLead.respondType=RfqResponseTypeEnum.SELLER
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-115-						productLead.save(flush:true, failOnError:true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-116-					}else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-117-						orderStatus = false;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-118-					}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-119-				}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-120-			}else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-121-				orderStatus = false;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-122-			}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-123-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-124-			data.setStatusCode(HttpStatus.OK);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-125-			if(orderStatus){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-126-				data.setMessage([message:message(code: 'orderdetails.orderplaced.label')])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-127-				data.setData(resultMap);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-128-			}else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-129-				data.setMessage([message:message(code: 'merchant.rfq.missed')])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-130-			}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-131-		}catch(Exception e){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-132-			data.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-133-			data.setErrorMessage([field:"genericField" ,message:e.getLocalizedMessage()])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-134-			log.error("error: {}",e);
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-135-			log.error("error message: {}, exception : {}",e.getLocalizedMessage(),e)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\supplier\SupplierRfqController.groovy-136-		}

@@ -1,0 +1,808 @@
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-379-     * Inventory Quantity for Private Offer Creation
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-380-     */
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy:381:    Integer inventoryQty = 0
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-382-
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-383-    transient MerchantExtension merch
+--
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-682-        deltaType  nullable:true
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-683-        deltaAmount  nullable:true
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy:684:        inventoryQty nullable:true,blank:false,defaultValue:0
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-685-        mPeDLevelDiscount nullable:true,defaultValue:0
+D:\Project\livguard-d2c\grails-app\domain\com\ratetag\domain\MerchantProductOffer.groovy-686-        maxOrderPerCustomer  nullable:true
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-249-											</div>
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-250-											<div
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:251:												class="form-group fieldcontain ${hasErrors(bean: merchantProductOfferInstance, field: 'inventoryQty', 'error')} required">
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-252-												<label for="qty" class="reqd"> <g:message
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:253:														code="merchantProductOffer.inventoryQty.label" default="Maximum Qty" />
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-254-												</label> &nbsp;
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:255:												<g:field class="form-control input-sm inventoryQty-${merchantProductOfferInstance.id}" name="inventoryQty" required=""
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:256:													type="text" value="${merchantProductOfferInstance.inventoryQty}"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-257-[Omitted long context line]
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-258-
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-995-									});
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-996-										$("#${merchantProductOfferInstance.id ? merchantProductOfferInstance.id : 'standalone'}").submit(function() {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:997:											var inventoryQty = $('.inventoryQty-${merchantProductOfferInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-998-											var qty = $('.qty-${merchantProductOfferInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-999-											var multi = $('.multiples-${merchantProductOfferInstance?.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-1000-											var moq = $('.minimumOrderQty-${merchantProductOfferInstance?.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp:1001:											if(parseInt(inventoryQty) < parseInt(qty)) {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-1002-												alert("Inventory qty cannot be less than rfq qty")
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\_offerLead.gsp-1003-												return false
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-602-		}
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-603-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy:604:		def rfqQty = params.inventoryQty.toInteger()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-605-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-606-		if(!rfqQty || rfqQty <= 0){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-617-				processingDays:params.processingDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-618-				estimatedDeliveryDays:params.estimatedDeliveryDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy:619:				inventoryQty:rfqQty,
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-620-				qty:params.qty.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\SourcingController.groovy-621-				url:'',
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-183-					estimatedDeliveryDays:4,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-184-					qty:0,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:185:					inventoryQty:0,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-186-					url:'na',
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-187-					sku:'',
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-278-											</div>
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-279-											<div class="form-group fieldcontain required">
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:280:												<label for="inventoryQty" class="reqd"> <g:message
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:281:														code="merchantProductOffer.inventoryQty.label" default="Maximum Qty" />
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-282-												</label> &nbsp;
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:283:												<g:field class="inventoryQty-${productPriceFeedbackInstance.id}" name="inventoryQty"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:284:													type="number" value="${merchantProductOfferInstance?.inventoryQty}"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-285-													required="" data-toggle="popover"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-286-													data-trigger="hover,focus"
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-611-
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-612-									$(".frm-${productPriceFeedbackInstance?.id?.toString() }").submit(function() {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:613:										var inventoryQty = $('.inventoryQty-${productPriceFeedbackInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-614-										var qty = $('.qty-${productPriceFeedbackInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-615-										var multi = $('.multiples-${productPriceFeedbackInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-616-										var moq = $('.minimumOrderQty-${productPriceFeedbackInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp:617:										if(parseInt(inventoryQty) < parseInt(qty)) {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-618-											alert("Inventory qty cannot be less than rfq qty")
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\priceFeedbackLeads.gsp-619-											return false
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-600-                            <div class="row m-b-10 wms p-10">
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-601-                                <div class="col-xs-12 wms">
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:602:                                    <select class="form-control" name="wmsCode" v-model="selectedWms" @change="selectWms(selectedWms)">
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-603-                                        <option :value="null">Choose a warehouse</option>
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:604:                                        <option v-for="wms in wmsList" :key="wms.code" :value="wms.code" name="wmsCode">
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-605-                                            {{ wms.name }}
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-606-                                        </option>
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-620-        },
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-621-        methods: {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:622:            selectWms(wmsCode) {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-623-                // Issue #1: when deselecting, clear immediately and return — no server call needed
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:624:                if (!wmsCode) {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-625-                    this.selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-626-                    selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:627:                    document.getElementById('wmsCode').value = '';
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-628-                    showAlertMessage(false, 'WMS removed');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-629-                    return;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-630-                }
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:631:                this.selectedWms = wmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:632:                selectedWms = wmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-633-                // Issue #1: do NOT set hidden field yet — only set it after server confirms selection
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:634:                // to prevent form submission with an unconfirmed wmsCode
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-635-
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-636-                showSpinner(true);
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-637-                const cartId = this.$props.page === 'cart' ? '' : (window.shippingPage ? window.shippingPage.cartId : '');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:638:                const url = `/cart/selectWms?cartId=`+cartId+"&wmsCode="+wmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-639-
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-640-                fetch(url, {
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-649-                        if (response.statusCode === '200 OK' || response.status === true) {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-650-                            // Set hidden field only after server confirms the selection
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:651:                            document.getElementById('wmsCode').value = wmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-652-                            showAlertMessage(true, response.message || 'WMS updated successfully');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-653-                            EventBus.$emit('refreshOrderSummary', { summary: response });
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-656-                            this.selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-657-                            selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:658:                            document.getElementById('wmsCode').value = '';
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-659-                            showAlertMessage(false, response.message || 'Failed to update WMS');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-660-                        }
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-662-                    this.selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-663-                    selectedWms = null;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js:664:                    document.getElementById('wmsCode').value = '';
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-665-                    fetchRequestErrorHandler(error);
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\vueComponents.js-666-                });
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-31-                    wmsList: window.shippingPage.wmsList
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-32-                });
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js:33:                // Issue #7: restore wmsCode selection persisted in session across page refreshes
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-34-                if (response.selectedWmsCode) {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-35-                    selectedWms = response.selectedWmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js:36:                    const wmsField = document.getElementById('wmsCode');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-37-                    if (wmsField) wmsField.value = response.selectedWmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-38-                }
+--
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-173-                        });
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-174-                    }
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js:175:                    // Issue #7: restore wmsCode selection from session-backed API response
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-176-                    if (apiResponse.selectedWmsCode) {
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-177-                        selectedWms = apiResponse.selectedWmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js:178:                        const wmsField = document.getElementById('wmsCode');
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-179-                        if (wmsField) wmsField.value = apiResponse.selectedWmsCode;
+D:\Project\livguard-d2c\grails-app\assets\javascripts\venedor\shippingPage.js-180-                    }
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-313-					estimatedDeliveryDays:4,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-314-					qty:productLeadInstance.quantity,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:315:					inventoryQty:0,
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-316-					url:'na',
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-317-					sku:'',
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-447-																			</div>
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-448-																			<div class="form-group fieldcontain required">
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:449:																				<label for="inventoryQty" class="reqd"> <g:message
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:450:																						code="merchantProductOffer.inventoryQty.label"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-451-																						default="Maximum Qty" />
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-452-																				</label> &nbsp;
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-453-																				<g:field
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:454:																					class="form-control inventoryQty-${productLeadInstance.id}"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:455:																					name="inventoryQty" type="number"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:456:																					value="${merchantProductOfferInstance?.inventoryQty}"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-457-																					required="" data-toggle="popover"
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-458-																					data-trigger="hover,focus"
+--
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-907-
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-908-									$(".frm-${productLeadInstance?.id?.toString() }").submit(function() {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:909:										var inventoryQty = $('.inventoryQty-${productLeadInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-910-										var qty = $('.qty-${productLeadInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-911-										var multi = $('.multiples-${productLeadInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-912-										var moq = $('.minimumOrderQty-${productLeadInstance.id}').val();
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp:913:										if(parseInt(inventoryQty) < parseInt(qty)) {
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-914-											alert("Inventory qty cannot be less than rfq qty")
+D:\Project\livguard-d2c\grails-app\views\templates\associate\lakshya\lakshyaAssociate\leads.gsp-915-											return false
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCheckout\shipping.gsp-316-                                    <input type="hidden" id="inventoryRemarks" name="inventoryRemarks" value=""/>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCheckout\shipping.gsp-317-                                    <input type="hidden" id="referenceOrder" name="referenceOrder" value=""/>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCheckout\shipping.gsp:318:                                    <input type="hidden" name="wmsCode" id="wmsCode" value=""/>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCheckout\shipping.gsp-319-
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCheckout\shipping.gsp-320-
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-893-				if(privateOffer){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-894-					//Integer prodLeadQnty = Integer.parseInt(enk.quantity)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy:895:					if(enk.quantity && privateOffer?.inventoryQty <= privateOffer?.minimumOrderQty){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy:896:						applicablequantities << privateOffer?.inventoryQty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-897-					}else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy:898:						int count = (privateOffer?.inventoryQty - privateOffer?.minimumOrderQty)/privateOffer.multiples
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-899-						def applqnt = privateOffer?.minimumOrderQty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-900-						applicablequantities << applqnt
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-901-						for(int i=0; i<count ; i++){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-902-							applqnt = applqnt + privateOffer.multiples
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy:903:							if(applqnt > privateOffer?.inventoryQty){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-904-								break;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\ProdLeadController.groovy-905-							}
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-125-                    cart['privateOffer'] = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-126-                    cart['offerDeadline'] = cartItem?.offer?.validTill?.getTime()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy:127:                    if (cartItem?.qty > offer?.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-128-                        cart['outOfStock'] = 'true'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-129-                        if (!outOfStockAtCart) {
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-590-            offerN.partNumber = offer?.product?.attributes?.sellerskuid
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-591-            offerN.stockType = offer?.product?.attributes?.stocktype
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy:592:            offerN["inventoryQty"] = offer.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-593-            offerN["inventoryvalidation"] = message(code: 'inventory.validation.message', args: [offer.qty])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\preorder\PreorderApiController.groovy-594-            def currentDate = new Date()
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobilePdpController.groovy-1019-			offerN["regularPrice"] = offer.regularPrice
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobilePdpController.groovy-1020-			offerN["sku"] = offer.sku
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobilePdpController.groovy:1021:			offerN["inventoryQty"] = offer.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobilePdpController.groovy-1022-			if(offer.stockType){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobilePdpController.groovy-1023-				offerN["stockType"] = offer.stockType
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-490-                    cart['privateOffer'] = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-491-                    cart['offerDeadline'] = cartItem?.offer?.validTill?.getTime()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy:492:                    if (cartItem?.qty > offer?.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-493-                        cart['outOfStock'] = 'true'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-494-                        if (!outOfStockAtCart) {
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-1034-            offerN.partNumber = offer?.product?.attributes?.sellerskuid
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-1035-            offerN.stockType = offer?.product?.attributes?.stocktype
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy:1036:            offerN["inventoryQty"] = offer.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-1037-            if(preorderId != null){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\mobile\MobileAppController.groovy-1038-                offerN["inventoryvalidation"] = "You have reached the maximum quantity available as a part of this offer"
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-980-                                                                                                                        v-model.number="seller.quantity"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-981-                                                                                                                        :min="seller.minimumOrderQty"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:982:                                                                                                                        :max="seller.inventoryQty"/>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-983-
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-984-                                                                                                                <button type="button"
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1013-                                                                                                        <button type="button" v-if="orderEnabled"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1014-                                                                                                                class="dark-blue-btn-inverse cart-tier-price"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:1015:                                                                                                                :disabled="!profiledUser || !checkProductEligibility || !userBlocked || seller.quantity > seller.inventoryQty"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1016-                                                                                                                style="display: block;"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1017-                                                                                                                @click="triggerBuyNow(selectedOfferId,selectedQty,selectedOfferPrice)">
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1020-                                                                                                        <button type="button" v-if="orderEnabled"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1021-                                                                                                                class="dark-blue-btn cart-tier-price"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:1022:                                                                                                                :disabled="!profiledUser || !checkProductEligibility || !userBlocked || seller.quantity > seller.inventoryQty"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1023-                                                                                                                style="display: block;"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1024-                                                                                                                @click="submitExpress(selectedOfferId,selectedQty,selectedOfferPrice)">
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1031-                                                                                                <td colspan="4"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1032-                                                                                                    style="text-align: center; color: #fc2828; font-size: 11px;"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:1033:                                                                                                    v-if="seller.showInventoryError || seller.quantity > seller.inventoryQty"
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1034-                                                                                                    class="error-message">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1035-                                                                                                    {{ seller.inventoryErrorMsg || seller.inventoryValidation }}
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1954-                            watch: {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1955-                                quantity(newQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:1956:                                    this.showInventoryError = newQty > this.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1957-
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1958-                                    if (this.tierPricing && this.tierPricing.length > 0) {
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1988-                                    regularPrice: '',
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1989-                                    offerPrice: '',
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:1990:                                    inventoryQty: 0,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1991-                                    multiples: 1,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-1992-                                    minimumOrderQty: 1,
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2119-                                formattedInventoryValidation() {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2120-                                    return this.inventoryValidationMsg + "."
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2121:                                        || "Maximum Available Quantity is " + this.inventoryQty + ". ";
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2122-                                },
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2123-                                formattedMultiplesValidation() {
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2304-                                    if (mainCart === true) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2305-                                        this.inventoryValidationMsg = qty < this.minimumOrderQty ? this.inventoryValidationMinimum : this.inventoryValidation;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2306:                                        if (qty >= this.minimumOrderQty && qty % this.multiples === 0 && qty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2307-                                            this.showInventoryError = false;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2308-                                            this.showMultiplesError = false;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2309:                                        } else if (qty % this.multiples != 0 && qty >= this.minimumOrderQty && qty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2310-                                            this.showMultiplesError = true;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2311-                                            this.showInventoryError = false;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2373-                                    if (mainCart === true) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2374-                                        this.inventoryValidationMsg = qty < this.minimumOrderQty ? this.inventoryValidationMinimum : this.inventoryValidation;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2375:                                        if (qty >= this.minimumOrderQty && qty % this.multiples === 0 && qty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2376-                                            this.showInventoryError = false;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2377-                                            this.showMultiplesError = false;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2378:                                        } else if (qty % this.multiples != 0 && qty >= this.minimumOrderQty && qty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2379-                                            this.showMultiplesError = true;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2380-                                            this.showInventoryError = false;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2482-                                        this.offerPrice = offer?.offerPrice;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2483-                                        this.originalOfferPrice = offer?.offerPrice; // Save original base price
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2484:                                        this.inventoryQty = offer?.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2485-                                        this.minimumOrderQty = parseInt(offer?.minimumOrderQty) || 1;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2486-                                        this.multiples = parseInt(offer?.multiples) || 1;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2557-                                            selected: false,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2558-                                            offerId: offer?.id,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2559:                                            inventoryQty: offer?.inventoryQty,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2560-                                            showInventoryError: false,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2561-                                            inventoryErrorMsg: offer?.messages?.[0] || null,
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2839-                                        newQty >= this.minimumOrderQty &&
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2840-                                        newQty % this.multiples === 0 &&
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2841:                                        newQty <= this.inventoryQty
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2842-                                    ) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2843-                                        this.showInventoryError = false;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2846-                                        newQty % this.multiples !== 0 &&
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2847-                                        newQty >= this.minimumOrderQty &&
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2848:                                        newQty <= this.inventoryQty
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2849-                                    ) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2850-                                        this.formattedMultiplesValidation = `Quantity must be in multiples of ${this.multiples} after MOQ`;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2862-                                    const addQty = newQty % this.multiples
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2863-                                    if (addQty != 0) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2864:                                        newQty = newQty + addQty > this.inventoryQty ? this.inventoryQty : newQty + addQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2865-                                    }
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2866-                                    this.inventoryValidationMsg = newQty < this.minimumOrderQty
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2867-                                        ? this.inventoryValidationMinimum
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2868-                                        : this.inventoryValidation;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2869:                                    if (newQty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2870-                                        this.quantity = newQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2871-                                        this.showInventoryError = false;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2903-                                },
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2904-                                increaseNewQty(seller) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp:2905:                                    const maxQty = seller.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2906-                                    const multiple = this.multiples || 1;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\product.gsp-2907-
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1042-        watch: {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1043-            quantity(newQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1044:                this.showInventoryError = newQty > this.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1045-                for (const tier of this.tierPricing) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1046-                    const min = tier.minQty;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1065-                regularPrice: '',
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1066-                offerPrice: '',
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1067:                inventoryQty: 0,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1068-                multiples: 1,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1069-                minimumOrderQty: 1,
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1162-            formattedInventoryValidation() {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1163-                // Replace {qty} or any similar placeholder if it exists
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1164:                return this.inventoryValidation?.replace("{qty}", this.inventoryQty)
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1165:                    || `Maximum Available Quantity is ${this.inventoryQty}. If you need more, raise a BULK ORDER.`;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1166-            }
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1167-        },
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1364-                    this.rfqenabled = offer?.rfqenabled;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1365-                    this.offerPrice = offer?.offerPrice;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1366:                    this.inventoryQty = offer?.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1367-                    this.minimumOrderQty = parseInt(offer?.minimumOrderQty) || 1;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1368-                    this.multiples = parseInt(offer?.multiples) || 1;
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1428-                        selected: false,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1429-                        offerId: offer.id,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1430:                        inventoryQty: offer.inventoryQty,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1431-                        showInventoryError: false,
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1432-                        inventoryErrorMsg: offer?.messages?.[0] || null,
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1629-                console.log("offerid  --  " + offer)
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1630-                //console.log("offerid  --  "+this.offer)
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1631:                const maxQty = offer?.termsOfSale?.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1632-                console.log("maxQty  --  " + maxQty)
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1633-                console.log("this.getMultiples(offer)" + this.getMultiples(offer))
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1656-            handleIncreaseQty() {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1657-                const newQty = this.quantity + this.multiples;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1658:                if (newQty <= this.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1659-                    this.quantity = newQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1660-                    this.showInventoryError = false;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1661-                } else {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1662:                    this.quantity = this.inventoryQty; // Prevent overflow
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1663-                    this.showInventoryError = true;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1664-                }
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1684-            },
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1685-            increaseNewQty(seller) {
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp:1686:                const maxQty = seller.inventoryQty;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1687-                const multiple = this.multiples || 1;
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCatalog\pdpTemplates\_energy.gsp-1688-
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-194-				<g:if test="${cartItemInstance?.offer?.productLead}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-195-					<g:if
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp:196:						test="${cartItemInstance.qty > cartItemInstance?.offer?.inventoryQty}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-197-						<br />
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-198-						<small class="text-red"><g:message
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-268-
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-269-					<g:if test="${cartItemInstance?.offer?.productLead}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp:270:					<g:if test="${cartItemInstance.qty > cartItemInstance?.offer?.inventoryQty}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-271-					<br />
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-272-						<small class="text-red"><g:message code="cartitem.productnotavailable.label" default="This product is currently Sold out. Please come back later to place an order or submit a Request for Quote." /></small>
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-635-				<small><g:message code="cartitem.minimumorderqtyis.label" default="Minimum Order Quantity is" /> ${minimumOrderQty} <g:message code="cartitem.multiplesof.label" default="and this will increase in multiples of" /> ${orderMultiples}</small>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-636-				<g:if test="${cartItemInstance?.offer?.productLead}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp:637:			<g:if test="${cartItemInstance.qty > cartItemInstance?.offer?.inventoryQty}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-638-			<br />
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_wholesalecartitem.gsp-639-				<small class="text-red"><g:message code="cartitem.productnotavailable.label" default="Product not available as the cart quantity has exceeded the maximum offer quantity" /></small>
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_storecartitem.gsp-104-				<small><g:message code="cartitem.minimumorderqtyis.label" default="Minimum Order Quantity is" /> ${minimumOrderQty} <g:message code="cartitem.multiplesof.label" default="and this will increase in multiples of" /> ${orderMultiples}</small>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_storecartitem.gsp-105-				<g:if test="${cartItemInstance?.offer?.productLead}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_storecartitem.gsp:106:					<g:if test="${cartItemInstance.qty > cartItemInstance?.offer?.inventoryQty}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_storecartitem.gsp-107-					<br />
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_storecartitem.gsp-108-						<small style="color:red"><g:message code="cartitem.productnotavailable.label" default="Product not available as the cart quantity has exceeded the maximum offer quantity" /></small>
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-603-                    if(["Vinculum"].contains(cartInstance?.offer?.merchant?.activeWMS) && cartInstance?.offer?.merchant?.warehouseLocationCode){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-604-                        def inventory = lakshyaAssociateOfferService.getInventory(webSite, pinCode, cartInstance?.offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy:605:                        int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy:606:                        if(inventoryQty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-607-                            itemDTO.setOutOfStock(true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-608-                            anyItemOOS = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-609-                        }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy:610:                        itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-611-                    }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-612-                        itemDTO.setMaximumOrderQty(cartInstance.offer.qty)
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-1384-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-1385-                        //Check serviceability
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy:1386:                        if ((it.offer.productLead && it.offer.inventoryQty < it.qty) || !it.offer.active) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-1387-                            inventoryOk = false
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCheckoutController.groovy-1388-                            anyItemOos = true
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-136-                if(["Vinculum"].contains(cartInstance?.offer?.merchant?.activeWMS) && cartInstance?.offer?.merchant?.warehouseLocationCode){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-137-                    def inventory = lakshyaAssociateOfferService.getInventory(webSite, pincode, cartInstance?.offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:138:                    int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:139:                    if(inventoryQty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-140-                        itemDTO.setOutOfStock(true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-141-                        anyItemOOS = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-142-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:143:                    itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-144-                }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-145-                    itemDTO.setMaximumOrderQty(cartInstance.offer.qty)
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-921-					cart['privateOffer'] = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-922-					cart['offerDeadline'] = cartItem?.offer?.validTill?.getTime()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:923:					if (cartItem?.qty > offer?.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-924-						cart['outOfStock'] = 'true'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-925-						if (!outOfStockAtCart) {
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1334-			offerN.partNumber = offer?.product?.attributes?.sellerskuid
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1335-			offerN.stockType = offer?.product?.attributes?.stocktype
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1336:			offerN["inventoryQty"] = offer.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1337-			if(preorderId != null){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1338-				offerN["inventoryvalidation"] = "You have reached the maximum quantity available as a part of this offer"
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1503-							if(["Vinculum"].contains(cartInstance?.offer?.merchant?.activeWMS) && cartInstance?.offer?.merchant?.warehouseLocationCode){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1504-                                def inventory = lakshyaAssociateOfferService.getInventory(webSite, pinCode, cartInstance?.offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1505:                                int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1506:                                itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1507-                            }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1508-                                itemDTO.setMaximumOrderQty(cartInstance.offer.qty)
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1827-				if(["Vinculum"].contains(cartInstance?.offer?.merchant?.activeWMS) && cartInstance?.offer?.merchant?.warehouseLocationCode){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1828-                    def inventory = lakshyaAssociateOfferService.getInventory(webSite, pinCode, cartInstance?.offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1829:                    int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1830:                    if(inventoryQty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1831-                        itemDTO.setOutOfStock(true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1832-                        anyItemOOS = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1833-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:1834:                    itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1835-                }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-1836-                    itemDTO.setMaximumOrderQty(cartInstance.offer.qty)
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2599-        def marketplace = session["clientId"] ? session["clientId"]?.toString() : null
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2600-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2601:        // Issue #9: normalize wmsCode, guarding against whitespace and string literal 'null'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2602:        String rawWmsCode = params.wmsCode?.toString()?.trim()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2603-        boolean hasWmsCode = rawWmsCode && rawWmsCode != 'null'
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2604:        def wmsCode = hasWmsCode ? rawWmsCode : null
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2605-        try{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2606-            if(params.id){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2609-            }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2610-            rsts = userCartService.getUserCartList(usr, webSite, sess, cartId,true,marketplace)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2611:            // Issue #7: persist wmsCode selection in session so page refresh restores it
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2612:            session['selectedWmsCode'] = wmsCode ?: ''
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2613-            def cartList = []
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2614-            def quantity = 0
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2682-                itemDTO.setTierPricing(cartInstance.offer.tierPricing?cartInstance.offer.tierPricing:[])
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2683-                // Issues #4, #6: only call WMS inventory for Vinculum merchants;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2684:                // when no wmsCode selected, fall back to pinCode inventory (consistent with checkout)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2685:                boolean isVinculumItem = ["Vinculum"].contains(cartInstance?.offer?.merchant?.activeWMS) &&
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2686-                        cartInstance?.offer?.merchant?.warehouseLocationCode
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2687:                if(wmsCode && isVinculumItem){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2688:                    def inventory = lakshyaAssociateOfferService.getInventoryForWarehouse(webSite, cartInstance?.offer, wmsCode)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2689:                    int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2690:                    if(inventoryQty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2691-                        itemDTO.setOutOfStock(true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2692-                        anyItemOOS = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2693-                        itemDTO.setWmsMessage("Product is not available at this warehouse.")
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2694-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2695:                    itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2696:                }else if(isVinculumItem){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2697-                    def inventory = lakshyaAssociateOfferService.getInventory(webSite, pinCode, cartInstance?.offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2698:                    int inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2699:                    if(inventoryQty <= 0){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2700-                        itemDTO.setOutOfStock(true)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2701-                        anyItemOOS = true
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2702-                    }
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy:2703:                    itemDTO.setMaximumOrderQty(inventoryQty)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2704-                }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaCartController.groovy-2705-                    itemDTO.setMaximumOrderQty(cartInstance.offer.qty)
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1190-		//println "makeoffer :: 111 "+mo?.id
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1191-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy:1192:		def rfqQty = params.inventoryQty?.toInteger()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1193-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1194-		if(!rfqQty || rfqQty <=0){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1206-					processingDays:params.processingDays?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1207-					estimatedDeliveryDays:params.estimatedDeliveryDays?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy:1208:					inventoryQty:rfqQty,
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1209-					qty:params.qty?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-1210-					url:'',
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-2164-					processingDays:params.processingDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-2165-					estimatedDeliveryDays:params.estimatedDeliveryDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy:2166:					inventoryQty:params.inventoryQty.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-2167-					qty:params.qty.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\LakshyaAssociateController.groovy-2168-					url:'',
+--
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_cartitem.gsp-101-				<small><g:message code="cartitem.minimumorderqtyis.label" default="Minimum Order Quantity is" /> ${minimumOrderQty} <g:message code="cartitem.multiplesof.label" default="and this will increase in multiples of" /> ${orderMultiples}</small>
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_cartitem.gsp-102-				<g:if test="${cartItemInstance?.offer?.productLead}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_cartitem.gsp:103:					<g:if test="${cartItemInstance.qty > cartItemInstance?.offer?.inventoryQty}">
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_cartitem.gsp-104-					<br />
+D:\Project\livguard-d2c\grails-app\views\templates\venedor\lakshyaCart\_cartitem.gsp-105-						<small style="color:red"><g:message code="cartitem.productnotavailable.label" default="Product not available as the cart quantity has exceeded the maximum offer quantity" /></small>
+--
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-116-
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-117-                <div class="form-group fieldcontain required">
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:118:                    <label for="inventoryQty" class="reqd"><g:message
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:119:                            code="merchantProductOffer.inventoryQty.label"
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-120-                            default="Maximum Qty"/>
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-121-                    </label> &nbsp;
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:122:                <g:field class="inventoryQty-${productLeadInstance.id}"
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:123:                         name="inventoryQty" type="number"
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:124:                         value="${merchantProductOfferInstance?.inventoryQty ?: productLeadInstance?.quantity}"
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-125-                         required="" data-toggle="popover" data-trigger="hover,focus"
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-126-                         data-content="Enter the quantity available in the inventory"
+--
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-611-                $("#offerSubmit").submit(function () {
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-612-
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:613:                    var inventoryQty = $("#inventoryQty").val();
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-614-                    var qty = $("#qty").val();
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-615-                    var multi = $("#multiples").val();
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-616-                    var moq = $("#minimumOrderQty").val();
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp:617:                    if (parseInt(inventoryQty) < parseInt(qty)) {
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-618-                        alert("Inventory qty cannot be less than rfq qty")
+D:\Project\livguard-d2c\grails-app\views\templates\sourcing\_rfqs.gsp-619-                        return false
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-238-                    if (privateOffer) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-239-                        Integer prodLeadQnty = Integer.parseInt(enk.quantity)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy:240:                        if (prodLeadQnty && privateOffer?.inventoryQty <= privateOffer?.minimumOrderQty) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy:241:                            applicablequantities << privateOffer?.inventoryQty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-242-                        } else {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy:243:                            int count = (privateOffer?.inventoryQty - privateOffer?.minimumOrderQty) / privateOffer.multiples
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-244-                            def applqnt = privateOffer?.minimumOrderQty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-245-                            applicablequantities << applqnt
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-246-                            for (int i = 0; i < count; i++) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-247-                                applqnt = applqnt + privateOffer.multiples
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy:248:                                if (applqnt > privateOffer?.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-249-                                    break;
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\BulkQuoteController.groovy-250-                                }
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1074-                            def inventory = lakshyaAssociateOfferService.getInventory(wst, pincode, offer)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1075-                            if(inventory){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy:1076:                                offerMap.inventoryQty = inventory.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1077-                                int heavyTat = inventory.tat?:0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1078-                                def cutoff = inventory.cutoffTime?:"17:59:59"
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1085-                            }else{
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1086-                                offer.qty = 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy:1087:                                offerMap.inventoryQty = 0
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1088-                                offerMap.estimatedDeliveryDate = ""
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1089-                                offerMap.stockAvailability = "Out Of Stock"
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1288-            offerN["regularPrice"] = offer.regularPrice
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1289-            offerN["sku"] = offer.sku
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy:1290:            offerN["inventoryQty"] = offer.qty
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1291-            if(offer.stockType){
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\ProductSearchController.groovy-1292-                offerN["stockType"] = offer.stockType
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-170-        def mo = MerchantProductOffer.findByMerchantAndProductLead(m,pl)
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-171-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy:172:        def rfqQty = params.inventoryQty?.toInteger()
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-173-
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-174-        if(!rfqQty || rfqQty <=0){
+--
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-186-                    processingDays:paramObj.processingDays?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-187-                    estimatedDeliveryDays:paramObj.estimatedDeliveryDays?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy:188:                    inventoryQty:rfqQty,
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-189-                    qty:paramObj.qty?.toInteger(),
+D:\Project\livguard-d2c\grails-app\controllers\com\lakshya\api\SellerRfqController.groovy-190-                    url:'',
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-195-			List rsts = userCartService.findUserCartList(userExt, wst, cartId, true,false,paramObj.clientId)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-196-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:197:            // Issue #9: normalize wmsCode once to avoid repeated loose string checks
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:198:            String wmsCodeTrimmed = paramObj.wmsCode?.toString()?.trim()
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:199:            boolean wmsCodePresent = wmsCodeTrimmed && wmsCodeTrimmed != 'null'
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:200:            if (wmsCodePresent) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:201:                paramObj.wmsCode = wmsCodeTrimmed
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:202:                // Issue #2: validate the wmsCode exists in LocationWiseWarehousecode before using it
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:203:                def validWarehouse = LocationWiseWarehousecode.findByLocationCode(wmsCodeTrimmed)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-204-                if (!validWarehouse) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-205-                    errorMap['msgCode'] = 'lakshyacheckout.warehouse.invalid.label'
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-210-                }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-211-            } else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:212:                paramObj.wmsCode = null
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-213-            }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-214-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:215:            // Issue #10: enforce wmsCode when AssistAgent cart contains Vinculum items
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-216-            if (session['AssistAgent'] && rsts) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-217-                boolean hasVinculumItem = rsts.any { it.offer?.merchant?.activeWMS?.equals("Vinculum") }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:218:                if (hasVinculumItem && !wmsCodePresent) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-219-                    errorMap['msgCode'] = 'lakshyacheckout.warehouse.required.label'
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-220-                    errorMap['statusCode'] = HttpStatus.BAD_REQUEST
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-289-							Double regularDiscount = 0
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-290-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:291:                            int inventoryQty = cart.offer.qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-292-                            //If seller is WMS, fetch real inventory from Vinculum
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-293-                            int estimatedDeliveryDays = 0
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-294-                            // Issue #4: guard warehouse inventory call for Vinculum merchants only
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:295:                            // Issue #9: paramObj.wmsCode is already normalized to null if absent
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-296-                            boolean isVinculumCart = ["Vinculum"].contains(cart?.offer?.merchant?.activeWMS)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:297:                            if(paramObj.wmsCode && isVinculumCart){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:298:                                def inventory = lakshyaAssociateOfferService.getInventoryForWarehouse(wst, cart?.offer, paramObj.wmsCode)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-299-                                inventoryMap[cart?.offer?.product?.id?.toString()] = inventory
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-300-                                int invqty = inventory ? inventory.qty : 0
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-310-                                def inventory = lakshyaAssociateOfferService.getInventory(wst, pinCode, cart?.offer,true)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-311-                                inventoryMap[cart?.offer?.product?.id?.toString()] = inventory
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:312:                                inventoryQty = inventory ? inventory.qty : 0
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-313-                                int heavyTat = inventory.tat?:0
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-314-                                def cutoff = inventory.cutoffTime?:"17:59:59"
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-321-                            // Check qty of offer
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-322-                            //if (cart.offer.qty < cart.qty || !cart.offer.active || !cart.offer.available){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:323:                            if (inventoryQty<=0 || inventoryQty < cart.qty || !cart.offer.active || !cart.offer.available){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-324-                                try{
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-325-                                    inventoryOk = false
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-1754-			if(o.manageInventory==null || o.manageInventory){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-1755-				if(o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:1756:					newQty = o?.inventoryQty-qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-1757-				} else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-1758-					newQty = o.qty-qty
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2976-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2977-	private def getUpdatedOffer(LakshyaMerchantProductOffer o, Double qty) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:2978:		def newQty = 0, inventoryQty = null, iQty = null, qtyInCart = 0, actualQty = 0, virtualQty = null, qtyDiscountType = DiscountTypeEnum.ABSOLUTE
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2979-		if(o.manageInventory==null || o.manageInventory){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2980-			if(o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:2981:				newQty = o?.inventoryQty-qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2982-			} else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2983-				newQty = o.qty-qty
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2986-			def newqtyInCart = existingQtyInCart +  qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2987-			if(o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:2988:				inventoryQty = (newQty)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2989-			} else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-2990-				iQty = (newQty)
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-3010-		update.put("actualQty", actualQty)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-3011-		update.put("qtyDiscountType", qtyDiscountType.toString())
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:3012:		if(inventoryQty) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy:3013:			update.put("inventoryQty", inventoryQty)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-3014-		}else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CheckoutService.groovy-3015-			update.put("qty", iQty)
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CatalogService.groovy-2468-            if(o.manageInventory==null || o.manageInventory){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CatalogService.groovy-2469-                if(o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CatalogService.groovy:2470:                    newQty = o?.inventoryQty-qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CatalogService.groovy-2471-                } else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\CatalogService.groovy-2472-                    newQty = o.qty-qty
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-439-                offer.validFrom = new Date(System.currentTimeMillis() - 60 * 1000)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-440-            }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:441:            offer.inventoryQty = paramObj.qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-442-            offer.qty = paramObj.qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-443-            offer.leadStatus = RfqStatusEnum.RESPONDED
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-607-                def validTill = requestMap.validTill
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-608-                def qty = requestMap.qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:609:                def inventoryQty = requestMap.inventoryQty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-610-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-611-                if(merchantId == null || merchantId.empty){
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-682-                    return validRequestMap;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-683-                }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:684:                if(inventoryQty){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:685:                    inventoryQty = inventoryQty.toInteger()
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-686-                }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:687:                if(inventoryQty == null || inventoryQty < 1){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-688-                    validRequestMap['error'] = true;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-689-                    validRequestMap['errorMessage'] = "Inventory Quantity should be greater than 0.";
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-774-        offer.validFrom = new Date()
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-775-        offer.validTill = validtilldate
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy:776:        offer.inventoryQty = paramObj.inventoryQty ? paramObj.inventoryQty.toInteger() : paramObj.qty.toInteger()
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-777-        offer.qty = paramObj.qty.toInteger()
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\api\SellerOffersService.groovy-778-        offer.category = product.attributes.mastercategory
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-258-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-259-			}
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:260:			if (merchantProductOfferInstance.productLead || merchantProductOfferInstance.inventoryQty != null) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:261:				merchantProductOfferInstance.inventoryQty = merchantProductOfferInstance.qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-262-			}
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-263-
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1578-    }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1579-
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1580:    def getInventoryForWarehouse(def website, def offer, def wmsCode){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1581-        def inventoryMap = null
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1582-        def product = offer?.product
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1583:        def inv = wmsService.getInventoryFromAPI(website, [skuCodes:[product?.attributes?.sapproductcode], locCode:wmsCode])
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1584-        if (inv && inv?.responseCode==0) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1585-            if(inv?.response?.size()>0){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1586-                for(def res : inv?.response){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1587-                    if(res?.qty>0){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1588:                        inventoryMap = [qty: res?.qty, warehouse: wmsCode, channelCode:wmsCode]
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1589-                    }else{
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1590-                        if(offer?.virtualQty && offer?.virtualQty>0){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1591:                            inventoryMap = [qty: offer?.virtualQty, warehouse: wmsCode, channelCode:wmsCode]
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1592-                        }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1593-                    }
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1595-            }else{
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1596-                if(offer?.virtualQty && offer?.virtualQty>0){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1597:                    inventoryMap = [qty: offer?.virtualQty, warehouse: wmsCode, channelCode:wmsCode]
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1598-                }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1599-            }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1600-        }else if(inv && inv?.responseCode==1105){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1601-            if(offer?.virtualQty && offer?.virtualQty>0){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy:1602:                inventoryMap = [qty: offer?.virtualQty, warehouse: wmsCode, channelCode:wmsCode]
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1603-            }
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\associate\LakshyaAssociateOfferService.groovy-1604-        }
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\basket\MerchantOfferService.groovy-106-					enquiries.each{pLead ->
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\basket\MerchantOfferService.groovy-107-						def privateOffer = MerchantProductOffer.findAllByProductLead(pLead)
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\basket\MerchantOfferService.groovy:108:						if(privateOffer && dateDifferenceInDays(privateOffer.get(0).validTill, new Date()) == 1 && privateOffer.get(0).inventoryQty > 0 && pLead.rfqStatus == lakshya.RfqStatusEnum.RESPONDED){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\basket\MerchantOfferService.groovy-109-							notify('bulkQuoteExpiryNotify', ['user':usr,'offer':privateOffer.get(0),'webSite':webSite])
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\basket\MerchantOfferService.groovy-110-						}
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\UserCartService.groovy-425-        boolean itemQuantityFlag = false
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\UserCartService.groovy-426-        if (cart?.offer?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\UserCartService.groovy:427:            if (cart.qty > cart.offer.inventoryQty) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\UserCartService.groovy-428-                itemQuantityFlag = true
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\UserCartService.groovy-429-            }
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-145-							processingDays:offer.processingDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-146-							estimatedDeliveryDays:offer.estimatedDeliveryDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy:147:							inventoryQty:lead.quantity as Integer,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-148-							qty:lead.quantity as Integer,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-149-							url:'',
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-1563-								processingDays:offer.processingDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-1564-								estimatedDeliveryDays:offer.estimatedDeliveryDays.toInteger(),
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy:1565:								inventoryQty:lead.quantity as Integer,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-1566-								qty:lead.quantity as Integer,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\ProdLeadService.groovy-1567-								url:'',
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\preorder\PreorderResponseService.groovy-97-                    estimatedDeliveryDays: deliveryDays,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\preorder\PreorderResponseService.groovy-98-                    qty: quantity,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\preorder\PreorderResponseService.groovy:99:                    inventoryQty: quantity,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\preorder\PreorderResponseService.groovy-100-                    qtyInCart: 0,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\preorder\PreorderResponseService.groovy-101-                    sku: product?.attributes?.sellerskuid,
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-409-            if (o.manageInventory == null || o.manageInventory) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-410-                if (o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy:411:                    newQty = o?.inventoryQty + qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-412-                } else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-413-                    newQty = o.qty + qty
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-454-            if (o.manageInventory == null || o.manageInventory) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-455-                if (o?.productLead) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy:456:                    newQty = o?.inventoryQty - qty
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-457-                } else {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\order\OrderAdapterService.groovy-458-                    newQty = o.qty - qty
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\leadsquared\LeadSquaredEventService.groovy-743-                    def regularPrice = (merchantOffer.regularPrice) ? merchantOffer.regularPrice : "-NA-"
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\leadsquared\LeadSquaredEventService.groovy-744-                    def offerPrice = (merchantOffer.offerPrice) ? merchantOffer.offerPrice : "-NA-"
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\leadsquared\LeadSquaredEventService.groovy:745:                    def inventory = (merchantOffer.inventoryQty) ? merchantOffer.inventoryQty : "-NA-"
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\leadsquared\LeadSquaredEventService.groovy-746-                    def moq = (merchantOffer.minimumOrderQty) ? merchantOffer.minimumOrderQty : "-NA-"
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\leadsquared\LeadSquaredEventService.groovy-747-                    def validity = (merchantOffer.validTill) ? merchantOffer.validTill : "-NA-"
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1194-							if(existingPrivateOffer.actualQty) {
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1195-								existingPrivateOffer.qty = existingPrivateOffer.actualQty;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy:1196:								existingPrivateOffer.inventoryQty = existingPrivateOffer.actualQty;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1197-							}else if(qty){
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1198-								existingPrivateOffer.qty = 0+qty;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy:1199:								existingPrivateOffer.inventoryQty = 0+qty;
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1200-							}
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1201-							existingPrivateOffer.validFrom = minDate
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1213-                                estimatedDeliveryDays:2,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1214-                                qty:qty,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy:1215:									inventoryQty: qty,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1216-									url:'',
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\opaque\seller\SellerConsumerService.groovy-1217-                                sku:product.attributes['sellerskuid'],
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-1598-			"springSecurity.nouser.login.fail":"Looks like you are not registered on our website. Register to view best prices and offers.",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-1599-			"serviceablePrice.pinCode.unique.error":"Pincode must be unique.  Prices already exist for Pincode {0}",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy:1600:			"merchantProductOffer.inventoryQty.label":"Maximum Qty",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-1601-			"merchantProductOffer.qty.label":"Qty",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-1602-			"productlead.purchaseDate.label":"Purchase Date:",
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-3747-			"springSecurity.nouser.login.fail":"Looks like you are not registered on our website. Register to view best prices and offers.",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-3748-			"serviceablePrice.pinCode.unique.error":"Pincode must be unique.  Prices already exist for Pincode {0}",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy:3749:			"merchantProductOffer.inventoryQty.label":"Maximum Qty",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-3750-			"merchantProductOffer.qty.label":"Qty",
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\LakshyaConfigurationService.groovy-3751-			"productlead.purchaseDate.label":"Purchase Date:",
+--
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\BidManagementService.groovy-59-							processingDays:productBid.processingDays,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\BidManagementService.groovy-60-							estimatedDeliveryDays:productBid.estimatedDeliveryDays,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\BidManagementService.groovy:61:							inventoryQty:biddingData.qty,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\BidManagementService.groovy-62-							qty:biddingData.qty,
+D:\Project\livguard-d2c\grails-app\services\com\lakshya\service\BidManagementService.groovy-63-							actualQty : biddingData.qty,

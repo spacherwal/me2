@@ -1,0 +1,1181 @@
+     1→package com.lakshya
+     2→
+     3→import com.lakshya.agenttool.AssistAgent
+     4→import com.lakshya.associate.LakshyaMerchantProductOffer
+     5→import com.lakshya.promotion.Coupon
+     6→import com.lakshya.promotion.Promotion
+     7→import com.lakshya.promotion.UserCoupon
+     8→import com.lakshya.promotion.UserFirstOrderCoupon
+     9→import com.ratetag.domain.*
+    10→import com.ratetag.embedded.SalesOrder
+    11→import com.ratetag.enums.*
+    12→import lakshya.*
+    13→import org.springframework.http.HttpStatus
+    14→import org.springframework.transaction.TransactionSystemException
+    15→
+    16→import javax.servlet.http.HttpServletRequest
+    17→import javax.servlet.http.HttpServletResponse
+    18→import javax.servlet.http.HttpSession
+    19→
+    20→class LakshyaCheckoutService {
+    21→
+    22→    static transactional = false
+    23→
+    24→    def userCartService
+    25→    def servletContext
+    26→    def promotionService
+    27→    def lakshyaUtilsService
+    28→    def merchantGroupsService
+    29→    def catalogService
+    30→    def walletService
+    31→    def utilsService
+    32→    def paymentService
+    33→    def lakshyaCartService
+    34→    def springSecurityService
+    35→    def lakshyaOrderService
+    36→    def paymentHelperService
+    37→    def groovyPageRenderer
+    38→    def grailsApplication
+    39→    def appConfigParamService
+    40→    def merchantServiceabilityService
+    41→    def checkoutService
+    42→    def lakshyaNBFCService
+    43→
+    44→    def createOrder(Map paramObj, HttpServletRequest request, HttpServletResponse response, HttpSession session, def platform) {
+    45→        //println "LakshyaCheckoutService"
+    46→        Map responseMap = [:], errorMap = [:], paymentMap = [:], successMap = [:]
+    47→        List saleList = [], deliveryDeadlineList = []
+    48→        Double qty = 0, totalAmount = 0, deliveryCharge = 0, discount = 0, bktDiscount = 0
+    49→        UserAddress address
+    50→        try {
+    51→            def appVersion = paramObj['appVersion']
+    52→            paymentMap['paidByWalletMessage'] = ('pay.walletvalueupdated.label')
+    53→            User userExt = User.get(paramObj['usrId'])
+    54→            String walletAmt = paramObj['redeemedAmount'] ? paramObj['redeemedAmount'] : paramObj['walletamount']
+    55→            String creditAmt = paramObj['creditAmount']
+    56→            paramObj['addressId'] = paramObj['addressId'] ? paramObj['addressId'] : userExt.addressIdSelected
+    57→            def codFee = paramObj.codFee
+    58→            //LIPLWEB-6445
+    59→            def posFlag = false;
+    60→            if (paramObj['rsPaymentMethod']) {
+    61→                if (paramObj['rsPaymentMethod'].equals("CARDONDELIVERY")) {
+    62→                    paramObj['rsPaymentMethod'] = "CASHONDELIVERY";
+    63→                    posFlag = true;
+    64→                }
+    65→            } else {
+    66→                paramObj['rsPaymentMethod'] = userExt.paymentModeSelected
+    67→            }
+    68→            //paramObj['rsPaymentMethod'] = paramObj['rsPaymentMethod'] ?  paramObj['rsPaymentMethod']  : userExt.paymentModeSelected
+    69→            paramObj['linkId'] = paramObj['linkId'] ? paramObj['linkId'] : userExt.linkId
+    70→            paramObj['walletamount'] = paramObj['walletamount'] ? paramObj['walletamount'] : userExt.walletAmount
+    71→            paramObj['advanceAmount'] = paramObj['advanceAmount'] ? paramObj['advanceAmount'] : userExt.advanceAmount
+    72→            paramObj['advancePaymentMethod'] = paramObj['advancePaymentMethod'] ? paramObj['advancePaymentMethod'] : userExt.advancePaymentMethod
+    73→            paramObj['redeem'] = walletAmt
+    74→            paramObj['paymentOption'] = paramObj['rsPaymentMethod']
+    75→            UserAddressExtension userAddressInstance = UserAddressExtension.get(paramObj['addressId'])
+    76→            UserAddressExtension billingAddressInstance = UserAddressExtension.get(paramObj['billingAddress'] ? paramObj['billingAddress'] : paramObj['addressId'])
+    77→            successMap['statusCode'] = HttpStatus.OK
+    78→            successMap['controller'] = 'pay'
+    79→            errorMap['controller'] = 'lakshyaCheckout'
+    80→            errorMap['action'] = 'shipping'
+    81→            errorMap['statusCode'] = HttpStatus.INSUFFICIENT_STORAGE
+    82→
+    83→            String wst = request['x-website-id'].toString()
+    84→            String httpCode = appConfigParamService.getHTTPCode(wst)
+    85→            httpCode = httpCode ? httpCode : "http"
+    86→            String mediaurl = servletContext.configuration."${wst}".'mob_web_media_url'
+    87→            String templatePath = servletContext.configuration."${wst}"."web_default_template"
+    88→            WebSite webSite = WebSite.get(wst)
+    89→            errorMap['params'] = paramObj
+    90→            String rsPaymentMethod = paramObj['rsPaymentMethod']
+    91→            if (paramObj['paymentMode']) {
+    92→                String paymentMethodType = paramObj['paymenttype']
+    93→                if (paymentMethodType.equals("COD")) {
+    94→                    rsPaymentMethod = PaymentMethodEnum.CASHONDELIVERY.name()
+    95→                } else if (paymentMethodType.equals("LTD_MONEY")) {
+    96→                    rsPaymentMethod = PaymentMethodEnum.WALLET
+    97→                } else {
+    98→                    rsPaymentMethod = paymentMethodType
+    99→                }
+   100→            }
+   101→
+   102→
+   103→            String cartId = paramObj['cartId']
+   104→            Double creditAmount = 0
+   105→            creditAmount = lakshyaUtilsService.nullZeroCheck(creditAmt) ? Double.parseDouble(creditAmt.toString()) : 0
+   106→            Double walletAmount = 0
+   107→            walletAmount = lakshyaUtilsService.nullZeroCheck(walletAmt) ? Double.parseDouble(walletAmt.toString()) : 0
+   108→            Double aWalletAmount = walletAmount
+   109→            List rsts = userCartService.findUserCartList(userExt, wst, cartId, true)
+   110→            if (rsts) {
+   111→                Map configData = null
+   112→                String pinCode = userAddressInstance.pinCode
+   113→                //User is Blocked or Not
+   114→
+   115→                String linkId = paramObj['linkId']
+   116→                String affCookie = request.getCookie('affid') // paramObj['affid']
+   117→                Affiliate aff = null
+   118→                try {
+   119→                    if (affCookie) {
+   120→                        aff = Affiliate.get(affCookie)
+   121→                    }
+   122→                } catch (Exception e) {
+   123→                    log.error("error : message : {}", e);
+   124→                    errorMap['msgCode'] = 'error.affiliate.checkout'
+   125→                    errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+   126→                    responseMap['error'] = errorMap
+   127→                    return responseMap
+   128→                }
+   129→
+   130→                //Inventory Check
+   131→                Map pResult = [:], suggestedProductMap = [:]
+   132→                Boolean inventoryOk = true
+   133→                List wholesale = []
+   134→                Double wholesaleRowTotal = 0, wholesaleSavings = 0, wholesaleCartCount = 0, wholesaleI = 0, wholesaleGrandTotal = 0, surcharge = 0,
+   135→                       bulkDiscount = 0, basketDiscount = 0, basketCount = 0, basketAmount = 0, comboDiscount = 0
+   136→                UserFirstOrderCoupon firstOrderDiscount = null
+   137→                UserCoupon userCoupon = null
+   138→                List<UserCoupon> userCouponList = null
+   139→                def chequeBounceCharge
+   140→                def chequeBounceChargeList
+   141→                def rt = grailsApplication.mainContext.getBean('com.ratetag.RateTagTagLib')
+   142→                def lt = grailsApplication.mainContext.getBean('com.lakshya.LakshyaTagLib')
+   143→                def mediaPath = servletContext.configuration."${request['x-website-id'].toString()}".'web_media_url'
+   144→                def web_base_url = servletContext.configuration."${request['x-website-id'].toString()}".'web_base_url'
+   145→                String baseUrl = paramObj.baseUrl
+   146→                try {
+   147→                    def isServicableAddress
+   148→                    rsts.each {
+   149→                        UserCart cart = UserCart.get(it.id)
+   150→                        isServicableAddress = merchantServiceabilityService.checkAvailability(cart?.offer?.merchant, pinCode)
+   151→                        if (!isServicableAddress) {
+   152→                            errorMap['msgCode'] = 'mobile.preview.ordercannotbedelivered.label'
+   153→                            errorMap['action'] = 'shipping'
+   154→                            errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+   155→                            responseMap['error'] = errorMap
+   156→                            return responseMap
+   157→                        }
+   158→
+   159→                        if (cart.qty == 0) {
+   160→                            errorMap['msgCode'] = 'error.inventory.checkout'
+   161→                            errorMap['action'] = 'shipping'
+   162→                            errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+   163→                            responseMap['error'] = errorMap
+   164→                            return responseMap
+   165→                        }
+   166→                        if (cart.offer.wholesale) {
+   167→                            Double regularDiscount = 0
+   168→                            // Check qty of offer
+   169→                            if (cart.offer.qty < cart.qty || !cart.offer.active || !cart.offer.available) {
+   170→                                try {
+   171→                                    inventoryOk = false
+   172→                                    cart.qty = cart.offer.qty
+   173→                                    cart.save(flush: true, failOnError: true, deepValidate: false)
+   174→                                    // Will have to redirect to cart once all iterations are over
+   175→                                } catch (Exception ic) {
+   176→                                    errorMap['msgCode'] = 'error.inventory.checkout'
+   177→                                    errorMap['action'] = 'shipping'
+   178→                                    errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+   179→                                    responseMap['error'] = errorMap
+   180→                                    return responseMap
+   181→                                }
+   182→                            }
+   183→                            if (cart.offer.regularPrice && cart.offer.offerPrice) {
+   184→                                regularDiscount = cart.offer.regularPrice - cart.offer.offerPrice
+   185→                            }
+   186→                            wholesaleRowTotal = wholesaleRowTotal + ((cart.offer.offerPrice) * cart.qty)
+   187→                            wholesaleSavings = wholesaleSavings + ((regularDiscount * cart.qty))
+   188→                            //bring the logic here of updateEstimatedDeliveryDays
+   189→                            cart.offer = catalogService.updateEstimatedDeliveryDays(cart.offer, userAddressInstance.pinCode, wst)
+   190→
+   191→                            // Use to render display block on payment page
+   192→                            wholesale << groovyPageRenderer.render(template: "/lakshyaCheckout/wholesalecartitemcommit", model: [cartItemInstance: cart,
+   193→                                                                                                                                 storeI          : wholesaleI, anyItemOos: false, webSite: wst, mediaPath: mediaPath, web_base_url: web_base_url, rt: rt, lt: lt])
+   194→                            wholesaleCartCount = wholesaleCartCount + 1
+   195→                        }
+   196→                        wholesaleI = wholesaleI + 1
+   197→
+   198→                    }
+   199→                } catch (Exception e) {
+   200→                    log.error("error : message : {}", e);
+   201→                    e.printStackTrace()
+   202→                }
+   203→                if (!inventoryOk) {
+   204→                    // Something got sold out or inactivated - go back to cart
+   205→                    errorMap['msgCode'] = 'lakshyacheckout.outofstock.label'
+   206→                    errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+   207→                    errorMap['action'] = 'shipping'
+   208→                    responseMap['error'] = errorMap
+   209→                    return responseMap
+   210→                }
+   211→
+   212→                pResult['wholesale'] = wholesale
+   213→                def deliveryChargesText
+   214→                def tax
+   215→                Map cartSummary
+   216→                try {
+   217→                    cartSummary = userCartService.deduceCartData(userExt, wst, rsts, cartId, platform, pinCode)
+   218→                    if (cartSummary) {
+   219→                        deliveryChargesText = cartSummary.deliveryChargesText
+   220→                        wholesaleRowTotal = cartSummary.total
+   221→                        wholesaleGrandTotal = cartSummary.grandTotal
+   222→                        surcharge = cartSummary.deliveryCharges
+   223→                        userCoupon = cartSummary.userCoupon
+   224→                        bulkDiscount = cartSummary.bulkDiscount
+   225→                        basketDiscount = cartSummary.basketDiscount
+   226→                        basketCount = cartSummary.basketCount
+   227→                        suggestedProductMap = cartSummary.suggestedProductMap
+   228→                        basketAmount = cartSummary.basketAmount
+   229→                        firstOrderDiscount = cartSummary.usrFirstOrderDiscount
+   230→                        comboDiscount = cartSummary.comboDiscount
+   231→                        userCouponList = cartSummary.userCouponList
+   232→                        chequeBounceCharge = cartSummary.chequeBounceCharge
+   233→                        chequeBounceChargeList = cartSummary.chequeBounceChargeList
+   234→                        tax = cartSummary.tax
+   235→                    }
+   236→                } catch (Exception e) {
+   237→                    log.error(e.getLocalizedMessage(), e)
+   238→                    e.printStackTrace()
+   239→                }
+   240→
+   241→                Map cartWallets = [:]
+   242→                Double walletBalance = 0
+   243→                //Wallet Balance Check with wallet Amount Applied
+   244→                try {
+   245→                    Map walletBalanceMap = walletService.userBalanceWithCreditNotes(userExt, wst, rsts, cartSummary)
+   246→                    def walletBalanceWithoutCredit = walletBalanceMap['walletBalanceWithoutCredit'] ? walletBalanceMap['walletBalanceWithoutCredit'] : 0
+   247→                    def total_Credit_Wallet_Balance = walletBalanceMap['balance'] ? walletBalanceMap['balance'] : 0
+   248→                    if (creditAmount > 0 && walletAmount > 0) {
+   249→                        walletBalance = total_Credit_Wallet_Balance
+   250→                        walletAmount = walletAmount + creditAmount
+   251→                    } else if (creditAmount > 0 && walletAmount == 0) {
+   252→                        walletBalance = total_Credit_Wallet_Balance - walletBalanceWithoutCredit
+   253→                        walletAmount = creditAmount
+   254→                    } else if (walletAmount > 0 && creditAmount == 0) {
+   255→                        walletBalance = walletBalanceWithoutCredit
+   256→                    }
+   257→                    walletBalance = Utils.setDecimalFormat(walletBalance)
+   258→                    if (creditAmount > 0) {
+   259→                        cartWallets = walletBalanceMap['cartWallet']
+   260→                    }
+   261→
+   262→                    if (walletAmount && walletBalance < walletAmount) {
+   263→                        errorMap['msgCode'] = 'pay.walletinsufficientbalance.label'
+   264→                        responseMap['error'] = errorMap
+   265→                        return responseMap
+   266→                    }
+   267→                    wholesaleGrandTotal = Math.round(wholesaleGrandTotal * 100.0) / 100.0
+   268→                    if (paramObj['paymentOption'] == "WALLET" && wholesaleGrandTotal) {
+   269→                        wholesaleGrandTotal = Utils.setDecimalFormat(wholesaleGrandTotal)
+   270→                    }
+   271→                    if (paramObj['paymentOption'] == "WALLET" && (walletBalance < wholesaleGrandTotal)) {
+   272→                        errorMap['msgCode'] = 'pay.walletinsufficientbalance.label'
+   273→                        responseMap['error'] = errorMap
+   274→                        return responseMap
+   275→                    } else if (paramObj['paymentOption'] == "WALLET" && (wholesaleGrandTotal - Math.round(walletAmount * 100.0) / 100.0) != 0) {
+   276→                        errorMap['msgCode'] = 'preview.cartqtychanged.label'
+   277→                        responseMap['error'] = errorMap
+   278→                        return responseMap
+   279→                    } else if (walletAmount > wholesaleGrandTotal) {
+   280→                        errorMap['msgCode'] = 'preview.cartqtychanged.label'
+   281→                        responseMap['error'] = errorMap
+   282→                        return responseMap
+   283→                    }
+   284→                } catch (Exception e) {
+   285→                    log.error(e.getLocalizedMessage(), e)
+   286→                    e.printStackTrace()
+   287→                }
+   288→
+   289→                //Minimum CArt Value Validation Not Met
+   290→                def isElectricalOrder = true
+   291→                def cdcPDCCategories = servletContext.configuration."${request['x-website-id'].toString()}"."system_cdc_pdc_categories"
+   292→                List categoryList = cdcPDCCategories?.tokenize(",")
+   293→                try {
+   294→                    Map cartValidMap = lakshyaUtilsService.validateCartValue(rsts, wst, wholesaleGrandTotal, rsPaymentMethod.toString());
+   295→                    if (cartValidMap['minimumCartFlag']) {
+   296→                        errorMap['msgCode'] = 'minimumCartFlag.paymentMethod.label'
+   297→                        errorMap['msgArgs'] = [rsPaymentMethod.toString()]
+   298→                        errorMap['action'] = 'shipping'
+   299→                        responseMap['error'] = errorMap
+   300→                        return responseMap
+   301→                    }
+   302→
+   303→                    cartValidMap.categories?.tokenize(",").each { category ->
+   304→                        def isOrder = false;
+   305→                        categoryList?.each { confCategory ->
+   306→                            if (confCategory.trim().equalsIgnoreCase(category)) {
+   307→                                isOrder = true;
+   308→                            }
+   309→                        }
+   310→                        isElectricalOrder = isElectricalOrder ? isOrder : isElectricalOrder
+   311→                    }
+   312→                } catch (Exception e) {
+   313→                    log.error(e.getLocalizedMessage(), e)
+   314→                    e.printStackTrace()
+   315→                }
+   316→
+   317→                try {
+   318→                    configData = checkoutService.getConfigurationData(wst, userExt, pinCode, isElectricalOrder);
+   319→                    BlockStatusEnum blockStatus = configData.blockStatus
+   320→                    if (blockStatus != BlockStatusEnum.UNBLOCKED) {
+   321→                        if ((userExt.blockReason?.equalsIgnoreCase("CREDIT") && (rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT.toString()) || rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT14.toString()) || rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT28.toString()))) || ((!rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT.toString()) || !rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT14.toString()) || !rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CREDIT28.toString())) && !userExt.blockReason?.equalsIgnoreCase("CREDIT"))) {
+   322→                            errorMap['msgCode'] = 'lakshyacheckout.userBlocked.label'
+   323→                            errorMap['msgArgs'] = [blockStatus.toString()]
+   324→                            responseMap['error'] = errorMap
+   325→                            return responseMap
+   326→                        }
+   327→                    }
+   328→                } catch (Exception e) {
+   329→                    log.error(e.getLocalizedMessage(), e)
+   330→                    e.printStackTrace()
+   331→                }
+   332→
+   333→                int gracePeriod = configData.gracePeriod
+   334→                List rqAllowedMethods = configData.rqAllowedMethods
+   335→                try {
+   336→                    Map blockMap = checkoutService.isChequeCodBlocked(userExt, wst)
+   337→                    Boolean isChequeBlocked = blockMap['cheque']
+   338→                    Boolean isCodBlocked = blockMap['cod']
+   339→                    Boolean isCODAllowed = !isElectricalOrder ? ((isChequeBlocked && !isCodBlocked) || (userExt.codAmountLimit == null && userExt.actualChequeLimit == null)) : !isCodBlocked
+   340→                    Double userCDCLimit = userExt.cdcLimit
+   341→
+   342→                    if (rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CASHONDELIVERY.toString()) && !isCODAllowed) {
+   343→                        //COD is Blocked or Not
+   344→                        errorMap['msgCode'] = 'lakshyacheckout.codBlocked.label'
+   345→                        responseMap['error'] = errorMap
+   346→                        return responseMap
+   347→                    }
+   348→                    if (((isElectricalOrder && userCDCLimit > 0) || !isElectricalOrder) && isChequeBlocked) {
+   349→                        if (rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.CHEQUE.toString())
+   350→                                || rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.POSTDATEDCHEQUE.toString())) {
+   351→                            //Cheque is Blocked or Not
+   352→                            errorMap['msgCode'] = 'lakshyacheckout.chequeBlocked.label'
+   353→                            responseMap['error'] = errorMap
+   354→                            return responseMap
+   355→                        }
+   356→                    }
+   357→                } catch (Exception e) {
+   358→                    log.error("error : message : {}", e);
+   359→                    e.printStackTrace()
+   360→                }
+   361→                Double tagRate = configData.tagRate
+   362→                Double tagPoints = wholesaleRowTotal * tagRate
+   363→                tagPoints = tagPoints ? tagPoints.intValue() : 0
+   364→
+   365→                def addDiscount = 0, addSurcharge = 0
+   366→                rsts.each { UserCart userCart ->
+   367→                    if (userCart.grossPayableAmount > userCart.netPayableAmount) {
+   368→                        userCart.grossPayableAmount = userCart.grossPayableAmount ? userCart.grossPayableAmount : 0
+   369→                        userCart.netPayableAmount = userCart.netPayableAmount ? userCart.netPayableAmount : 0
+   370→                        addDiscount += userCart.grossPayableAmount - userCart.netPayableAmount
+   371→                    } else {
+   372→                        userCart.grossPayableAmount = userCart.grossPayableAmount ? userCart.grossPayableAmount : 0
+   373→                        userCart.netPayableAmount = userCart.netPayableAmount ? userCart.netPayableAmount : 0
+   374→                        addSurcharge += userCart.netPayableAmount - userCart.grossPayableAmount
+   375→                    }
+   376→                }
+   377→                PaymentTypeInformation paymentTypeInfo = lakshyaOrderService.getPaymentTypeInfo(wholesaleGrandTotal, rsPaymentMethod.toString(), User.get(userExt.id), cartId, wst);
+   378→                def netPayableAmount = wholesaleGrandTotal - walletAmount
+   379→                String discSurcharge = paymentTypeInfo?.surchargeDiscount
+   380→                String discSurchargeType = paymentTypeInfo?.surchargeDiscountType
+   381→                if (paymentTypeInfo) {
+   382→                    if (addDiscount) {
+   383→                        if (discSurcharge.equalsIgnoreCase(SurchargeDiscountEnum.DISCOUNT.toString()) && discSurchargeType.equalsIgnoreCase(SurchargeDiscountTypeEnum.ABSOLUTE.toString())) {
+   384→                            if ((netPayableAmount) > paymentTypeInfo.surchargeDiscountValue) {
+   385→                                addDiscount = paymentTypeInfo.surchargeDiscountValue
+   386→                            } else {
+   387→                                addDiscount = netPayableAmount
+   388→                            }
+   389→                        } else {
+   390→                            netPayableAmount = (netPayableAmount * paymentTypeInfo.surchargeDiscountValue / 100)
+   391→                            addDiscount = netPayableAmount
+   392→                        }
+   393→                        wholesaleGrandTotal = wholesaleGrandTotal - addDiscount
+   394→                    } else {
+   395→                        if (discSurcharge.equalsIgnoreCase(SurchargeDiscountEnum.SURCHARGE.toString()) && discSurchargeType.equalsIgnoreCase(SurchargeDiscountTypeEnum.ABSOLUTE.toString())) {
+   396→                            addSurcharge = paymentTypeInfo.surchargeDiscountValue
+   397→                        } else {
+   398→                            netPayableAmount = (netPayableAmount * paymentTypeInfo.surchargeDiscountValue / 100)
+   399→                            addSurcharge = netPayableAmount
+   400→                        }
+   401→                        wholesaleGrandTotal = wholesaleGrandTotal + addSurcharge
+   402→                    }
+   403→                }
+   404→                log.info "/templates/${templatePath}/lakshyaCheckout/payblock|${templatePath}"
+   405→                String displayBlock = groovyPageRenderer.render(template: "/lakshyaCheckout/payblock", model: [chequeBounceCharge : chequeBounceCharge, userCouponList: userCouponList,
+   406→                                                                                                               userAddressInstance: userAddressInstance, cartItemListInstance: rsts, cartItemCountInstance: rsts.size(), processedResult: pResult,
+   407→                                                                                                               wholesaleRowTotal  : wholesaleRowTotal, wholesaleSavings: wholesaleSavings, storeRowTotal: 0, storeSavings: 0, tagPoints: tagPoints,
+   408→                                                                                                               anyItemOos         : false, deliveryCharges: surcharge, deliveryChargesText: deliveryChargesText, grandTotal: 0, wholesaleGrandTotal: wholesaleGrandTotal, userCoupon: userCoupon,
+   409→                                                                                                               basketDiscount     : basketDiscount, commit: true, bulkDiscount: bulkDiscount, firstOrderDiscount: firstOrderDiscount, rt: rt, lt: lt,
+   410→                                                                                                               addDiscount        : addDiscount, addSurcharge: addSurcharge, billingAddressInstance: billingAddressInstance])
+   411→                wholesaleGrandTotal = wholesaleGrandTotal + addDiscount - addSurcharge
+   412→
+   413→                Double taxOnService = configData.taxOnService
+   414→                Double fixedMarketPlaceFee = configData.fixedMarketPlaceFee
+   415→                Boolean emptyCartFlag = configData.emptyCartFlag
+   416→                successMap['emptyCartFlag'] = emptyCartFlag
+   417→                def sessionId = session.id ? session.id : null
+   418→
+   419→                String ipAddress = request.getHeader("X-FORWARDED-FOR");
+   420→                if (ipAddress == null) {
+   421→                    ipAddress = request.getRemoteAddr();
+   422→                }
+   423→                rsts = checkoutService.findCreditNotesMerchants(userExt, wst, rsts)
+   424→
+   425→                Payment payment
+   426→                List orderIds = [], sales = []
+   427→                Map creditNoteMap = [:]
+   428→                Double creditNoteValue = 0, remainingWalletAmount = 0 //= walletAmount
+   429→
+   430→                Double advAmount = paramObj.advanceAmount ? Double.parseDouble(paramObj.advanceAmount.toString()) : 0
+   431→                //                String amt = servletContext.configuration."${wst}"."wallet_credit_amount_abandoned_cart"
+   432→                Wallet abandonedCartWallet = null
+   433→                Double amount = 0//amt ? Double.valueOf(amt) : 0
+   434→                Map saleCreditNotesMap = [:]
+   435→                def paytmAmt = 0
+   436→                def advPayTMAmount = userExt.skipAdvancePayment == 'N'
+   437→                if (rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.PAYTM.toString()) || paramObj['advancePaymentMethod'].toString().equalsIgnoreCase(PaymentMethodEnum.PAYTM.toString())) {
+   438→                    if (rsPaymentMethod.toString().equalsIgnoreCase(PaymentMethodEnum.PAYTM.toString())) {
+   439→                        paytmAmt = wholesaleGrandTotal.round(2) - walletAmount.round(2)
+   440→                    } else if (paramObj['advancePaymentMethod'].toString().equalsIgnoreCase(PaymentMethodEnum.PAYTM.toString())) {
+   441→                        paytmAmt = userExt.skipAdvancePayment == 'N' ? advAmount : 0
+   442→                    }
+   443→                    if (paytmAmt > 0 && !checkoutService.isPayTMApplicable(paytmAmt, wst)) {
+   444→                        errorMap['msgCode'] = 'paytm.error.label'
+   445→                        responseMap['error'] = errorMap
+   446→                        return responseMap
+   447→                    }
+   448→                }
+   449→
+   450→                if (creditAmount > 0) {
+   451→                    remainingWalletAmount = creditAmount
+   452→                    cartWallets.each { k, v ->
+   453→                        if (v > 0) {
+   454→                            if (remainingWalletAmount >= v) {
+   455→                                creditNoteMap[k] = v
+   456→                                creditNoteValue += v
+   457→                                remainingWalletAmount -= v
+   458→                            } else if (remainingWalletAmount < v) {
+   459→                                creditNoteMap[k] = remainingWalletAmount
+   460→                                creditNoteValue += remainingWalletAmount
+   461→                                remainingWalletAmount = 0
+   462→                            }
+   463→                        } else {
+   464→                            creditNoteMap[k] = v
+   465→                        }
+   466→                    }
+   467→                }
+   468→                if (aWalletAmount > 0) {
+   469→                    remainingWalletAmount += aWalletAmount
+   470→                }
+   471→
+   472→
+   473→                Calendar cal = Calendar.getInstance();
+   474→                cal.setTime(new Date());
+   475→                cal.add(Calendar.SECOND, gracePeriod)
+   476→                Double total = wholesaleGrandTotal
+   477→                total = new Double(total.toString()).round(0)
+   478→                remainingWalletAmount = Math.min(remainingWalletAmount, total)
+   479→                walletAmount = Math.min(walletAmount, total)
+   480→
+   481→                Double discountAmount = 0, cashBackAmount = 0;
+   482→                try {
+   483→                    payment = new Payment()
+   484→                    payment.paymentModeDiscount = true
+   485→                    payment.setRqWebSite(webSite)
+   486→                    payment.setRqUser(userExt) // What to do in case of guest checkout?
+   487→                    payment.setRqErrorUrl("NA") // Will be updated a little later
+   488→                    payment.setRqFailUrl("NA") // Will be updated a little later
+   489→                    payment.setRqPassUrl("NA") // Will be updated a little later
+   490→                    payment.setRqDisplayBlock(displayBlock.toString()) // Otherwise StreamCharBuffer error will happen
+   491→                    payment.setRqCurrency(CurrencyCodesEnum.INR)
+   492→                    payment.setRqAmount(total)
+   493→                    payment.setRqGoods(true)
+   494→                    payment.setRqServices(false)
+   495→                    payment.setRqMaxAttempts(5)
+   496→                    payment.setRqExpires(new Date() + 2)
+   497→                    payment.setRqGrace(cal.getTime())
+   498→                    payment.walletAmount = 0
+   499→                    payment.cartId = cartId
+   500→
+   501→                    payment.setRqIpAddress(ipAddress)
+   502→                    payment.setRqAllowedMethods(rqAllowedMethods)
+   503→                    payment.setRqSettlementMode(PaymentSettlementModeEnum.AUTHANDCAPTURE)
+   504→                    payment.setRsStatus(PaymentStatusEnum.PENDING)
+   505→                    payment.setMasterOrderStatus(OrderStatusEnum.PENDING)
+   506→                    payment.setAttemptsMade(0)
+   507→                    payment.surcharge = surcharge;
+   508→                    payment.walletAmount = walletAmount ?: 0.0
+   509→                    if (rsPaymentMethod.equals(PaymentMethodEnum.CREDIT14.toString()) || rsPaymentMethod.equals(PaymentMethodEnum.CREDIT28.toString())) {
+   510→                        payment.rsPaymentMethodUsed = PaymentMethodEnum.CREDIT;
+   511→                        payment.creditType = rsPaymentMethod;
+   512→                    } else {
+   513→                        payment.rsPaymentMethodUsed = rsPaymentMethod;
+   514→                    }
+   515→                    //payment.rsPaymentMethodUsed = rsPaymentMethod
+   516→                    payment.chequeBounceCharge = chequeBounceCharge
+   517→                    payment.isElectricalOrder = isElectricalOrder
+   518→                    payment.tax = tax
+   519→                    if (userCoupon) {
+   520→                        userCouponList = []
+   521→                        userCouponList << userCoupon
+   522→                    }
+   523→                    if (userCouponList) {
+   524→                        userCouponList.each { UserCoupon usrCoupon ->
+   525→                            Coupon coupon = usrCoupon ? usrCoupon.coupon : null
+   526→                            Promotion promotion = coupon ? coupon.promotion : null
+   527→                            if (promotion) {
+   528→                                if (!promotionService.isCashBackPromotion(promotion)) {
+   529→                                    discountAmount += usrCoupon.discountAmount
+   530→                                } else {
+   531→                                    cashBackAmount += usrCoupon.discountAmount
+   532→                                }
+   533→                            }
+   534→                        }
+   535→                        payment.promotionDiscount = discountAmount
+   536→                    }
+   537→
+   538→                    if (firstOrderDiscount) {
+   539→                        discountAmount += firstOrderDiscount.discountAmount
+   540→                        payment.promotionDiscount = discountAmount
+   541→                    }
+   542→                    if (paramObj['paymentMode']) {
+   543→                        payment.paymentMode = [type: "API"]
+   544→                    }
+   545→                    payment.creditNoteAmount = creditNoteValue ? Utils.setDecimalFormat(creditNoteValue) : 0
+   546→                    payment.comboDiscount = comboDiscount ? comboDiscount.round(2) : 0
+   547→                    payment.masterOrderId = checkoutService.getMasterOrderId()
+   548→                    if (userExt.skipAdvancePayment == 'N') {
+   549→                        payment.advAmount = advAmount
+   550→                        payment.advancePaymentMethodUsed = paramObj['advancePaymentMethod']
+   551→                    }
+   552→                    payment.isAdvanceAmountApplicable = advAmount > 0
+   553→                    payment.paramMap = paramObj
+   554→                    payment.additionalDiscount = addDiscount
+   555→                    payment.additionalSurcharge = addSurcharge
+   556→                    payment.posFlag = posFlag;
+   557→                    if (paramObj['inventoryRemarks']) {
+   558→                        payment.orderRemarks = paramObj['inventoryRemarks'];
+   559→                    }
+   560→                    if (paramObj['referenceOrder']) {
+   561→                        payment.referenceOrder = paramObj['referenceOrder'];
+   562→                    }
+   563→                    payment.save(flush: true, failOnError: true, deepValidate: false)
+   564→
+   565→
+   566→                } catch (Exception e) {
+   567→                    log.error("checkout payment save==>" + e.toString());
+   568→                    e.printStackTrace()
+   569→                }
+   570→
+   571→
+   572→                //calculate the userCoupon discount for each cart
+   573→                Map cartDiscountMap = checkoutService.deduceCartDiscount(userCouponList, rsts)
+   574→                checkoutService.removeCartRef(userCouponList)
+   575→                Map cartLevelDiscount = cartDiscountMap["cartLevelDiscount"]
+   576→                Map cartLevelPromotionShare = cartDiscountMap["cartLevelPromotion"]
+   577→                Map cartLevelCashBack = cartDiscountMap["cartLevelCashBack"]
+   578→                Map firstOrderShareMap = checkoutService.deduceCartFirstOrderDiscount(firstOrderDiscount);
+   579→                Map basketDiscountShareMap = checkoutService.deduceBasketDiscount(basketAmount, basketDiscount, rsts, cartId, suggestedProductMap)
+   580→                Map chequeBounceChargeShareMap = checkoutService.deduceChequeBounceCharge(chequeBounceCharge, rsts)
+   581→                Map itemSurchargeShareMap = [:]
+   582→                if (appConfigParamService.pincodeBasedShippingCostEnabled(wst)) {
+   583→                    itemSurchargeShareMap = checkoutService.itemWiseShippingCost(surcharge, rsts)
+   584→                } else {
+   585→                    itemSurchargeShareMap = checkoutService.deduceItemSurcharge(surcharge, rsts)
+   586→                }
+   587→
+   588→                def qtyMap = lakshyaUtilsService.calculateBulkDiscountQty(rsts)
+   589→                def gTotal = 0
+   590→                rsts.each { cart ->
+   591→                    UserCartExtension userCart = UserCartExtension.get(cart.id)
+   592→                    if (userCart.offer.store || userCart.offer.wholesale) {
+   593→                        boolean flag = true
+   594→                        Sale sale
+   595→                        Double saleTotal = 0
+   596→                        //MerchantProductOffer o = MerchantProductOffer.get(userCart.offer.id)
+   597→                        def o = LakshyaMerchantProductOffer.get(userCart.offer.id)
+   598→                        if (userCart.qty > 0) {
+   599→                            checkoutService.reviseQuantity(o, userCart.qty)
+   600→                        } else {
+   601→                            errorMap['msgCode'] = 'Qty cannot be less than 1'
+   602→                            responseMap['error'] = errorMap
+   603→                            return responseMap
+   604→                        }
+   605→
+   606→                        //try{
+   607→                        sale = new Sale()
+   608→                        sale.paymentModeDiscount = true
+   609→                        sale.stockType = o.stockType
+   610→                        sale.stockDate = o.stockDate
+   611→                        sale.isRatedYourExp = false
+   612→                        sale.setBillingAddress(billingAddressInstance)
+   613→                        sale.setDeliveryAddress(userAddressInstance)
+   614→                        def deltaPrice = o.offerPrice
+   615→                        if (userExt) {
+   616→                            if (!userExt.isProfiledUser) {
+   617→                                if (o.mopPrice && o.mopPrice > 0 && o.mopPrice > o.offerPrice) {
+   618→                                    o.offerPrice = o.mopPrice
+   619→                                }
+   620→                            }
+   621→                            deltaPrice = o.offerPrice
+   622→                            /*def cashDiscount=calculateCashDiscount(o,o.offerPrice)
+   623→                            if(cashDiscount){
+   624→                                sale.cashDiscount=cashDiscount*userCart.qty
+   625→                            }*/
+   626→                            o.offerPrice = Math.round(o.offerPrice)
+   627→                            def myQty = userCart.qty
+   628→                            if (userCart.offer.merchantDiscountConfig) {
+   629→                                myQty = qtyMap[userCart.offer.merchantDiscountConfig.id.toString()]
+   630→                            }
+   631→                            Double cartBulkDiscount = checkoutService.calculateQtyBulkDiscount(o, myQty)
+   632→                            if (cartBulkDiscount) {
+   633→                                sale.bulkDiscount = cartBulkDiscount * userCart.qty
+   634→                            }
+   635→                            myQty = myQty ? myQty : userCart.qty ? userCart.qty : 1
+   636→                            //updateOfferPriceByBulkQuantity(o, myQty)
+   637→                            o.offerPrice = Math.round(o.offerPrice)
+   638→                        }
+   639→                        sale.setQty(userCart.qty)
+   640→                        Double cashBack = userCart.offer.store ? rt.instantcashbackamount(affiliateBidAbsolute: userCart.offer.storeBidAbsolute).toDouble() : 0
+   641→                        Double unitPrice = o.offerPrice - cashBack
+   642→                        Double rowTotal = unitPrice * userCart.qty
+   643→                        Double itemCashback = 0
+   644→                        Double creditNoteAmounts = creditNoteMap[cart.id]
+   645→                        if (paramObj['paymentMode'] && appVersion < 5300) {
+   646→                            sale.creditNoteApplicable = false
+   647→                            sale.maxCreditNoteAmount = 0
+   648→                        } else {
+   649→                            if (creditNoteAmounts > 0) {
+   650→                                sale.creditNoteApplicable = true
+   651→                            } else {
+   652→                                sale.creditNoteApplicable = false
+   653→                            }
+   654→                            sale.maxCreditNoteAmount = creditNoteAmounts ? creditNoteAmounts : 0
+   655→                        }
+   656→                        if (cashBackAmount) {
+   657→                            itemCashback = cartLevelCashBack[userCart.id?.toString()]
+   658→                        }
+   659→
+   660→
+   661→                        /*
+   662→                         * fetch cart level firstOrder discount share
+   663→                         */
+   664→                        Double firstOrderDiscountForCart = firstOrderShareMap[userCart.id?.toString()]
+   665→                        Double basketDiscountForCart = basketDiscountShareMap[userCart.id?.toString()]
+   666→
+   667→                        //Discount Amount as per item
+   668→                        Double itemDiscount = 0.0;
+   669→                        if ((discountAmount || basketDiscount)) {
+   670→                            itemDiscount = cartLevelDiscount[cart?.id?.toString()]
+   671→                            itemDiscount = itemDiscount != null ? itemDiscount : 0
+   672→                            itemDiscount = firstOrderDiscountForCart != null ? (itemDiscount + firstOrderDiscountForCart) : itemDiscount
+   673→                            itemDiscount = basketDiscountForCart != null ? (itemDiscount + basketDiscountForCart) : itemDiscount
+   674→                        }
+   675→
+   676→                        sale.setPromotionDiscount(itemDiscount)
+   677→
+   678→                        Map cartPromotionShare = cartLevelPromotionShare[userCart.id?.toString()]
+   679→                        Double comboPromoDiscount = 0
+   680→                        /*
+   681→                         * first order discount entry in sale object
+   682→                         */
+   683→                        if (firstOrderDiscountForCart) {
+   684→                            if (null == cartPromotionShare) {
+   685→                                cartPromotionShare = [:]
+   686→                            }
+   687→                            String proName = firstOrderDiscount?.firstOrderCoupon?.promotionName.replaceAll("\\.", "U+2022")
+   688→                            cartPromotionShare[proName] = firstOrderDiscountForCart
+   689→                        }
+   690→                        String cId = "";
+   691→                        if (comboDiscount && userCart.comboIds) {
+   692→                            Set comboIds = [] as LinkedHashSet
+   693→                            userCart.comboIds.each { comboId ->
+   694→                                cId = comboId
+   695→                                SuggestedCombo combo = SuggestedCombo.get(comboId)
+   696→                                comboPromoDiscount += checkoutService.calculateComboDiscount(userCart.offer, combo)
+   697→                            }
+   698→                            if (null == cartPromotionShare) {
+   699→                                cartPromotionShare = [:]
+   700→                            }
+   701→                            cartPromotionShare['Combo Discount'] = comboPromoDiscount
+   702→                        }
+   703→                        if (cId) {
+   704→                            sale.comboId = cId
+   705→                        }
+   706→
+   707→                        //Surcharge Amount as per item
+   708→                        Double itemSurchargeForCart = itemSurchargeShareMap[userCart.id?.toString()]
+   709→                        Double chequeBounceChargeForCart = chequeBounceChargeShareMap[userCart.id?.toString()]
+   710→                        Double itemSurcharge = itemSurchargeForCart != null ? itemSurchargeForCart : 0
+   711→                        sale.setSurcharge(itemSurcharge)
+   712→                        double itemChequeBounceCharge = chequeBounceChargeForCart != null ? chequeBounceChargeForCart : 0
+   713→                        sale.setChequeBounceCharge(itemChequeBounceCharge)
+   714→
+   715→                        //						Merchant merchant = Merchant.get(o.merchant.id)
+   716→                        MerchantExtension merch = MerchantExtension.get(o.merchant.id)
+   717→
+   718→                        if (merch.warehouseLocationCode && merch.activeWMS && merch.activeWMS.equalsIgnoreCase("Unicommerce")) {
+   719→                            sale.wmsStatus = WMSStatusEnum.PENDING.toString();
+   720→                            payment.wmsStatus = WMSStatusEnum.PENDING.toString();
+   721→                        }
+   722→                        def baseCost = lakshyaUtilsService.calculateOfferBaseCost(o)
+   723→                        //println "baseCost "+baseCost
+   724→                        sale.setUnitPrice(unitPrice)
+   725→                        sale.baseCost = baseCost
+   726→                        //println "ssss "+sale.baseCost
+   727→
+   728→                        sale.tax = (lakshyaUtilsService.calculateTax(o.product, baseCost * userCart.qty - itemDiscount - sale.bulkDiscount))?.round(2)
+   729→                        rowTotal = baseCost * userCart.qty + sale.tax
+   730→
+   731→                        if (itemDiscount) {
+   732→                            rowTotal = rowTotal - itemDiscount
+   733→                        }
+   734→                        if (sale.bulkDiscount) {
+   735→                            rowTotal = rowTotal - sale.bulkDiscount
+   736→                        }
+   737→                        if (comboPromoDiscount) {
+   738→                            rowTotal = rowTotal - comboPromoDiscount
+   739→                        }
+   740→                        if (itemSurcharge) {
+   741→                            rowTotal = rowTotal + itemSurcharge
+   742→                        }
+   743→                        if (itemChequeBounceCharge) {
+   744→                            rowTotal = rowTotal + itemChequeBounceCharge
+   745→                        }
+   746→                        saleTotal = rowTotal != null ? new Double(rowTotal.toString()) : 0
+   747→
+   748→                        sale.setGrandTotal(saleTotal.round(0)) //Row total of this item only
+   749→                        sale.setUser(userExt)
+   750→                        sale.setEmail(userExt.username)
+   751→                        //						sale.setMerchant(merchant)
+   752→                        sale.setMerchant(o.merchant)
+   753→
+   754→                        fixedMarketPlaceFee = o.productLevelFees ? o.productLevelFees - merch.mPeDLevelDiscount : fixedMarketPlaceFee
+   755→                        sale.setFixedMarketPlaceFee((unitPrice * userCart.qty * (fixedMarketPlaceFee / 100)) * (1 + (taxOnService / 100)))
+   756→                        sale.setCancellationFee((unitPrice * userCart.qty * (fixedMarketPlaceFee / 100)) * (1 + (taxOnService / 100)))
+   757→                        sale.setCurrency(CurrencyCodesEnum.INR)
+   758→                        sale.setBiddingFee((userCart.offer.storeBidAbsolute * userCart.qty) * (1 + (taxOnService / 100)))
+   759→                        checkoutService.updateEstimatedDeliveryDays(o, pinCode, wst)
+   760→                        sale.setDispatchDeadline(new Date() + o.processingDays + 1)
+   761→                        sale.setDeliveryDeadline(new Date() + o.estimatedDeliveryDays)
+   762→                        sale.setCashBackPerItem(0)
+   763→                        o.offerPrice = deltaPrice
+   764→                        sale.setOffer(o) //It needs full offer object
+   765→                        sale.setCashBackPerItem(cashBack)
+   766→                        sale.setStatus(OrderStatusEnum.PENDING)
+   767→                        sale.setAffiliate(aff)
+   768→                        if (aff) {
+   769→                            sale.setAffiliateFee((aff.cps / 100) * saleTotal.round(2))
+   770→                        } else {
+   771→                            sale.setAffiliateFee(0)
+   772→                        }
+   773→
+   774→                        if (o.actualQty == 0) {
+   775→                            sale.virtualOrderStatus = VirtualOrderStatus.RECEIVED
+   776→                        }
+   777→                        sale.orderId = checkoutService.getOrderId()
+   778→                        sale.category = o.product.attributes['mastercategory']
+   779→                        sale.isAdvanceAmountApplicable = (o.product.attributes['mastercategory'].equals("Mobiles") && advAmount > 0)
+   780→                        sale.sessionId = sessionId
+   781→                        if (session['AssistAgent']) {
+   782→                            sale.assistAgent = AssistAgent.get(session['AssistAgent'])
+   783→                        }
+   784→
+   785→
+   786→                        sale.payment = payment
+   787→
+   788→                        // Remove item from customer cart - third
+   789→                        if (emptyCartFlag) {
+   790→                            // Remove item from customer cart - third
+   791→                            Wallet abandonedCartAssociatedWallet = userCart.abandonedCartAssociatedWallet
+   792→                            AbandonedCartDetails abandonedCart = null //userCart.abandonedCart
+   793→                            userCart.delete(flush: true, failOnError: true)
+   794→                            if (abandonedCartAssociatedWallet) {
+   795→                                userExt = User.get(userExt.id)
+   796→                                checkoutService.updateAbandonedCartCheckoutWallet(abandonedCartAssociatedWallet, abandonedCart, payment)
+   797→                                userExt.abandonedCartAssociatedWallet = null
+   798→                                userExt.abandonedCart = null
+   799→                                userExt.save(flush: true, deepValidate: false)
+   800→                            }
+   801→                            sale.setCashBackAmount(itemCashback)
+   802→                        } else {
+   803→                            //sale.cart = userCart
+   804→                            sale.suggestedProduct = userCart.suggestedProduct
+   805→                            sale.setCashBackAmount(itemCashback)
+   806→                            if (cartPromotionShare) {
+   807→                                sale.appliedPromotionData = cartPromotionShare
+   808→                            }
+   809→                            sale.comboDiscount = comboPromoDiscount.round(2)
+   810→                        }
+   811→                        if (sale) {
+   812→                            def saleMap = [:], deliveryDeadlineMap = [:]
+   813→                            discount += sale.promotionDiscount
+   814→                            address = sale.deliveryAddress
+   815→                            deliveryCharge += sale.surcharge
+   816→                            qty += sale.qty
+   817→                            amount += sale.unitPrice.round(2) * sale.qty
+   818→                            Map attributes = sale.offer.product.attributes
+   819→                            saleMap['saleId'] = sale.orderId
+   820→                            saleMap['productName'] = attributes.name
+   821→                            deliveryDeadlineMap['productMap'] = attributes.name
+   822→                            deliveryDeadlineMap['estimatedDeliveryDate'] = sale.deliveryDeadline
+   823→                            saleMap['productId'] = sale.offer.product.id
+   824→                            saleMap['thumbnail'] = Utils.awsImagePath(sale.offer.product.id.toString(), "FRONT", mediaurl, "200")
+   825→                            //attributes.mainimageurl
+   826→                            saleMap['actualOfferPrice'] = sale.offer['actualOfferPrice']
+   827→                            saleMap['offerPrice'] = sale.offer.offerPrice
+   828→                            saleMap['qty'] = sale.qty
+   829→                            saleMap['estimatedDeliveryDate'] = sale.deliveryDeadline
+   830→                            saleMap['status'] = sale.status?.name()
+   831→                            saleMap['price'] = sale.grandTotal
+   832→                            saleMap['regularPrice'] = sale.offer?.regularPrice
+   833→                            saleMap['orderDate'] = sale.dateCreated
+   834→                            saleList << saleMap
+   835→                            deliveryDeadlineList << deliveryDeadlineMap
+   836→                            checkoutService.updateFirmName(userExt, address.company, address.gstin)
+   837→                            UserCreditDiscount userCreditDiscount = UserCreditDiscount.findByUserAndSku(userExt, attributes.modelnumber);
+   838→                            if (userCreditDiscount) {
+   839→                                Double saleCreditDiscount = userCreditDiscount.discountAmt;
+   840→                                if (userCreditDiscount.discountType.toString().equals(DiscountTypeEnum.RELATIVE.toString())) {
+   841→                                    //Logic is to be finalized;
+   842→                                }
+   843→                                sale.userCreditDiscount = saleCreditDiscount
+   844→                            }
+   845→                            sale.save(flush: true, failOnError: true, deepValidate: false)
+   846→                            gTotal += sale.grandTotal
+   847→                            if (creditAmount > 0) {
+   848→                                saleCreditNotesMap[sale.id.toString()] = creditNoteAmounts
+   849→                            }
+   850→
+   851→                        }
+   852→                        //updateProduct Index
+   853→                        try {
+   854→                            asyncSearchService.updateProductIndex(sale.offer.product)
+   855→                        } catch (Exception e) {
+   856→                            log.error(e.getMessage())
+   857→                        }
+   858→                        try {
+   859→                            //asyncAlgoliaSearchService.refreshIndex(sale.offer.product)
+   860→                        } catch (Exception e) {
+   861→                            log.error(e.getMessage())
+   862→                        }
+   863→
+   864→
+   865→                        checkoutService.convertRFQSale(sale)
+   866→                        orderIds << new SalesOrder(orderId: sale.id.toString(), amount: saleTotal.round(0)).toMap()
+   867→                        sales << sale
+   868→
+   869→                        /*}catch(OptimisticLockingException e) {
+   870→                         log.error(e)
+   871→                         //log.error(e.getLocalizedMessage(),e)
+   872→                         }catch(Exception e){
+   873→                         log.error(e)
+   874→                         //log.error(e.getLocalizedMessage(),e)
+   875→                         }*/
+   876→
+   877→                    }
+   878→                }
+   879→                String pId = payment.id.toString()
+   880→                payment.setRqOrderIds(orderIds)
+   881→                payment.basketDiscount = basketDiscount
+   882→                payment.setRqErrorUrl("${httpCode}://${baseUrl}/checkout/error/${pId}")
+   883→                payment.setRqFailUrl("${httpCode}://${baseUrl}/checkout/error/${pId}")
+   884→                payment.setRqPassUrl("${httpCode}://${baseUrl}/checkout/success/${pId}")
+   885→                //payment.save(flush:true,failOnError:true, deepValidate:false)
+   886→
+   887→
+   888→                if (remainingWalletAmount) {
+   889→                    def newWalletBalance = walletService.userBalance(userExt, webSite?.id?.toString())
+   890→                    newWalletBalance = payment.walletAmount ? newWalletBalance + payment.walletAmount : newWalletBalance
+   891→                    //To overcome chain effect of temporary debit entry in Wallet
+   892→                    newWalletBalance = newWalletBalance.round();
+   893→                    if (newWalletBalance >= remainingWalletAmount) {
+   894→                        List creditWallets = walletService.getCreditWalletApplicable(userExt, false, wst, remainingWalletAmount)
+   895→                        List debitWallets = []
+   896→                        creditWallets.each { creditWallet ->
+   897→                            if (new Double(creditWallet.amount.toString()).round(2) > 0) {
+   898→                                Wallet redemptionWallet = new Wallet()
+   899→                                redemptionWallet.user = userExt
+   900→                                redemptionWallet.webSite = webSite
+   901→                                redemptionWallet.expenseType = LedgerEntryTypesEnum.DEBIT
+   902→                                redemptionWallet.active = true
+   903→                                def myOrderIds = null
+   904→                                orderIds.each { o ->
+   905→                                    def s = Sale.get(o.orderId)
+   906→                                    myOrderIds = myOrderIds ? myOrderIds + "," + s.orderId : s.orderId
+   907→                                }
+   908→                                redemptionWallet.amount = creditWallet.amount
+   909→                                redemptionWallet.narration = "Redemption for Order Id(s) - ${myOrderIds}"
+   910→                                redemptionWallet.payment = payment
+   911→                                redemptionWallet.creditWalletId = creditWallet.id.toString()
+   912→                                if (creditWallet.walletType) {
+   913→                                    redemptionWallet.walletType = creditWallet.walletType
+   914→                                }
+   915→                                //LIPLWEB-6417, 6491
+   916→                                /*def newExpires = payment.rqExpires
+   917→                                def expireDate = newExpires.before(creditWallet.expires) ?  newExpires : creditWallet.expires
+   918→                                redemptionWallet.expires = expireDate*/
+   919→                                def expireDate = creditWallet.expires
+   920→                                redemptionWallet.expires = expireDate
+   921→                                redemptionWallet.userCreated = null
+   922→                                redemptionWallet.save(flush: true, deepValidate: false)
+   923→                                debitWallets << redemptionWallet.id.toString()
+   924→                            }
+   925→                        }
+   926→                        payment.walletAmount = remainingWalletAmount.toDouble()
+   927→                        payment.walletAmount = payment.walletAmount.round(2)
+   928→                        payment.walletAmount = payment.walletAmount.round(2) + payment.creditNoteAmount.round(2)
+   929→                        payment.walletAmount = Math.min(payment.walletAmount, payment.rqAmount)
+   930→                        payment.debitWallets = debitWallets
+   931→                        //payment.save(flush:true,failOnError:true, deepValidate:false)
+   932→
+   933→                        Map walletAmountMap = checkoutService.deduceWalletAmount(remainingWalletAmount, sales, saleCreditNotesMap)
+   934→                        sales.each { saleInstance ->
+   935→                            Double saleWalletAmount = walletAmountMap[saleInstance.id?.toString()]
+   936→                            saleWalletAmount = saleWalletAmount ? saleWalletAmount : 0
+   937→                            saleInstance.walletAmount = saleWalletAmount
+   938→                            List creditWalletSales = []
+   939→                            creditWallets.each { creditWallet ->
+   940→                                def creditWltSl = (saleWalletAmount / remainingWalletAmount) * new Double(creditWallet.amount.toString())
+   941→                                creditWltSl = creditWltSl.round(0)
+   942→                                if (creditWltSl > 0) {
+   943→                                    Map map = [:]
+   944→                                    map['id'] = creditWallet.id.toString()
+   945→                                    map['expires'] = creditWallet.expires
+   946→                                    map['amount'] = creditWltSl
+   947→                                    creditWalletSales << map
+   948→                                }
+   949→                            }
+   950→                            saleInstance.creditWallets = creditWalletSales
+   951→                            saleInstance.save(flush: true, failOnError: true, deepValidate: false)
+   952→                        }
+   953→                    }
+   954→                }
+   955→                payment.save(flush: true, failOnError: true, deepValidate: false)
+   956→                Payment pymt = payment
+   957→                if (userCouponList) {
+   958→                    userCouponList.each { cpn ->
+   959→                        UserCoupon usrCoupon = UserCoupon.get(cpn.id)
+   960→                        if (usrCoupon) {
+   961→                            usrCoupon.payment = pymt
+   962→                            usrCoupon.userCartList = [];
+   963→                            usrCoupon.save(flush: true, failOnError: true, deepValidate: false);
+   964→                        }
+   965→                    }
+   966→                }
+   967→
+   968→                if (firstOrderDiscount) {
+   969→                    firstOrderDiscount = UserFirstOrderCoupon.get(firstOrderDiscount.id)
+   970→                    firstOrderDiscount.couponStatus = CouponStatusEnum.REDEEMED
+   971→                    firstOrderDiscount.payment = pymt
+   972→                    firstOrderDiscount.userCartList = null
+   973→                    firstOrderDiscount.save(flush: true, failOnError: true, deepValidate: false);
+   974→                }
+   975→                /*
+   976→                 * cheque bounce handling
+   977→                 */
+   978→                if (chequeBounceChargeList) {
+   979→                    chequeBounceChargeList.each { chqkBounceCharge ->
+   980→                        if (chqkBounceCharge) {
+   981→                            def bounceObj = ChequeBounceCharge.get(chqkBounceCharge.id)
+   982→                            if (bounceObj) {
+   983→                                bounceObj.payment = pymt;
+   984→                                bounceObj.active = Boolean.FALSE;
+   985→                                bounceObj.save(failOnError: true, deepValidate: false);
+   986→                            }
+   987→                        }
+   988→                    }
+   989→                }
+   990→                sales.each { s ->
+   991→                    def biddingData = s?.offer?.biddingData
+   992→                    if (biddingData) {
+   993→                        def bid = biddingData?.bid
+   994→                        if (bid) {
+   995→                            bid.status = BidStatusEnum.CONVERTED
+   996→                            bid.save(flush: true, failOnError: true, deepValidate: false);
+   997→                        }
+   998→
+   999→                    }
+  1000→
+  1001→                }
+  1002→
+  1003→                //subscription user ledger
+  1004→                //asyncSubscriptionLedgerService.userLedger(payment?.id?.toString())
+  1005→
+  1006→                // set status to confirm if shared link order
+  1007→                if (linkId) {
+  1008→                    SharedOrderLink shareOrderLink = SharedOrderLink.findByLinkId(linkId)
+  1009→                    shareOrderLink.status = "CONFIRMED"
+  1010→                    shareOrderLink.save(flush: true, failOnError: true, deepValidate: false)
+  1011→                }
+  1012→                checkoutService.removeCartTempDetails(userExt.id?.toString(), cartId)
+  1013→                successMap['params'] = paramObj
+  1014→                successMap['id'] = payment.id
+  1015→                paymentService.calcAddedDiscSurcharge(payment, webSite, false)
+  1016→                if (paramObj['paymentMode']) {
+  1017→                    paymentMap['orderNo'] = payment?.masterOrderId
+  1018→                    paymentMap['paymentId'] = payment?.id
+  1019→                    paymentMap['totalProductCount'] = sales.size()
+  1020→                    paymentMap['totalQty'] = qty
+  1021→                    paymentMap['sales'] = saleList
+  1022→                    paymentMap['address'] = address
+  1023→                    paymentMap['delivery'] = deliveryDeadlineList
+  1024→                    paymentMap['paymentMethodType'] = rsPaymentMethod
+  1025→                    paymentMap['subTotal'] = totalAmount
+  1026→                    paymentMap['deliveryCharge'] = deliveryCharge
+  1027→                    def chkBoncCharge = payment.chequeBounceCharge ? payment.chequeBounceCharge : 0
+  1028→                    paymentMap['chequeBounceCharge'] = chkBoncCharge
+  1029→                    paymentMap['discount'] = discount
+  1030→                    paymentMap['advanceAmount'] = payment.advAmount
+  1031→                    paymentMap['grandTotal'] = gTotal - payment.walletAmount
+  1032→// amount + deliveryCharge - discount  + chkBoncCharge
+  1033→                    paymentMap['basketDiscount'] = basketDiscount
+  1034→                    paymentMap['paidByWallet'] = payment.walletAmount
+  1035→                    paymentMap
+  1036→                } else {
+  1037→                    Map paramMap = successMap['params']
+  1038→                    paramMap['cod'] = false
+  1039→                    paramMap['type'] = rsPaymentMethod
+  1040→                    successMap['params'] = paramMap
+  1041→                    if (rsPaymentMethod.equals(PaymentMethodEnum.CASHONDELIVERY.toString())) {
+  1042→                        if (payment.isAdvanceAmountApplicable) {
+  1043→                            if (paramObj['advancePaymentMethod'] == null) {
+  1044→                                if (userExt.skipAdvancePayment == 'Y') {
+  1045→                                    successMap['action'] = 'check'
+  1046→                                    paymentService.payViaCOD(payment, codFee)
+  1047→                                    paramMap['cod'] = true
+  1048→                                } else {
+  1049→                                    errorMap['msgCode'] = 'lakshyacheckout.advanceAmountPaymentMethod.selection.label'
+  1050→                                    responseMap['error'] = errorMap
+  1051→                                    return responseMap
+  1052→                                }
+  1053→                            } else {
+  1054→                                def payments = paymentHelperService.paymentOptions(payment, request, response, session)
+  1055→                                String paymentModesFinal = null
+  1056→                                payments.each {
+  1057→                                    if (it['rqMethod'].toString().equals(paramObj['advancePaymentMethod'].toString())) {
+  1058→                                        paymentModesFinal = it['actionUrl']
+  1059→                                    }
+  1060→                                }
+  1061→                                successMap['controller'] = (paymentModesFinal ? paymentModesFinal.split("${httpCode}://${baseUrl}/")[1].split("/")[0] : 'payU')
+  1062→                                successMap['action'] = 'submit'
+  1063→                            }
+  1064→                        } else {
+  1065→                            successMap['action'] = 'check'
+  1066→                            paymentService.payViaCOD(payment, codFee)
+  1067→                            paramMap['cod'] = true
+  1068→                            successMap['params'] = paramMap
+  1069→                        }
+  1070→                    } else if (rsPaymentMethod.equals(PaymentMethodEnum.CHEQUE.toString()) ||
+  1071→                            rsPaymentMethod.equals(PaymentMethodEnum.POSTDATEDCHEQUE.toString())) {
+  1072→                        successMap['action'] = 'processCheque'
+  1073→                        paymentService.processCheque(payment, paramObj, webSite)
+  1074→                    } else if (rsPaymentMethod.equals(PaymentMethodEnum.WALLET.toString())) {
+  1075→                        successMap['action'] = 'fullWalletRedemption'
+  1076→                        if (payment.rqAmount - payment.walletAmount == 0) {
+  1077→                            payment.rsStatus = PaymentStatusEnum.APPROVED
+  1078→                            payment.save(flush: true)
+  1079→                        } else {
+  1080→                            errorMap['msgCode'] = 'pay.walletredemptiontotalamount.label'
+  1081→                            responseMap['error'] = errorMap
+  1082→                            return responseMap
+  1083→                        }
+  1084→                    } else if (rsPaymentMethod.equals(PaymentMethodEnum.CREDIT28.toString()) || rsPaymentMethod.equals(PaymentMethodEnum.CREDIT14.toString())) {
+  1085→                        if (!paymentHelperService.isPayable(payment)) {
+  1086→                            errorMap['msgCode'] = 'nbfc.transactionnotcompleted.label'
+  1087→                            responseMap['error'] = errorMap
+  1088→                            return responseMap
+  1089→                        }
+  1090→
+  1091→                        if (!lakshyaNBFCService.activeStatus(request, payment.isElectricalOrder)) {
+  1092→                            errorMap['msgCode'] = 'nbfc.paymentgatewaydisabled.label'
+  1093→                            responseMap['error'] = errorMap
+  1094→                            return responseMap
+  1095→                        }
+  1096→                        if (paramMap?.cod?.toString() == 'true') {
+  1097→                            payment.rqOrderIds.each { o ->
+  1098→                                def s = Sale.get(o.orderId)
+  1099→                                s.setCashOnDelivery(true)
+  1100→                                s.save(flush: true, deepValidate: false)
+  1101→                            }
+  1102→                            payment.setCashOnDelivery(true)
+  1103→                            payment.setCashOnDeliveryFee(servletContext.configuration."${request['x-website-id'].toString()}"."cod_processing_fee".toDouble())
+  1104→                        } else {
+  1105→                            payment.rqOrderIds.each { o ->
+  1106→                                def s = Sale.get(o.orderId)
+  1107→                                s.setCashOnDelivery(false)
+  1108→                                s.save(flush: true, deepValidate: false)
+  1109→                            }
+  1110→                            payment.setCashOnDelivery(false)
+  1111→                            payment.setCashOnDeliveryFee(0.toDouble())
+  1112→                        }
+  1113→
+  1114→                        try {
+  1115→
+  1116→                            // Increment payment attempt count
+  1117→                            payment.rsPaymentMethodUsed = PaymentMethodEnum.valueOf(paramMap.type)
+  1118→                            payment.attemptsMade = payment.attemptsMade?.toInteger() + 1
+  1119→                            Map map = lakshyaNBFCService.takeDecision(payment, request, response, session)
+  1120→                            def r = map['paymentDeclined']
+  1121→                            payment = map['paymentInstance']
+  1122→                            if (r) {
+  1123→                                errorMap['msgCode'] = 'nbfc.balanceinsufficient.label'
+  1124→                                responseMap['error'] = errorMap
+  1125→                                return responseMap
+  1126→
+  1127→                            } else {
+  1128→                                //save payment method
+  1129→                                payment.rsPaymentMethodUsed = PaymentMethodEnum.CREDIT
+  1130→                            }
+  1131→                            payment.save(flush: true, deepValidate: false)
+  1132→
+  1133→                        } catch (Exception e) {
+  1134→                            log.error("Error in nbfc Credit Pool gateway", e)
+  1135→                            errorMap['msgCode'] = 'nbfc.chooseanothergateway.label'
+  1136→                            responseMap['error'] = errorMap
+  1137→                            return responseMap
+  1138→                        }
+  1139→                    } else {
+  1140→                        Map payments = paymentHelperService.paymentMethods(payment.rqUser, request, response, session, null, isElectricalOrder)
+  1141→                        String paymentModesFinal = null
+  1142→                        payments.each { rqMethod, v ->
+  1143→                            if (rqMethod.toString().equals(rsPaymentMethod.toString())) {
+  1144→                                paymentModesFinal = v['actionUrl']
+  1145→                            }
+  1146→                        }
+  1147→                        successMap['controller'] = (paymentModesFinal ? paymentModesFinal.split("${httpCode}://${baseUrl}/")[1].split("/")[0] : 'payU')
+  1148→                        successMap['action'] = 'submit'
+  1149→                    }
+  1150→                }
+  1151→
+  1152→                responseMap['payment'] = payment
+  1153→                responseMap['paymentMap'] = paymentMap
+  1154→                responseMap['success'] = successMap
+  1155→            }
+  1156→        } catch (TransactionSystemException e) {
+  1157→            log.error "TransactionSystemException {}" + e
+  1158→            errorMap['msgCode'] = 'lakshyacheckout.technicalproblem.label'
+  1159→            errorMap['action'] = 'shipping'
+  1160→            errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+  1161→            responseMap['error'] = errorMap
+  1162→            e.printStackTrace()
+  1163→        } catch (Exception oc) {
+  1164→            log.error "1 Exception {}" + oc
+  1165→            errorMap['msgCode'] = 'lakshyacheckout.technicalproblem.label'
+  1166→            errorMap['action'] = 'shipping'
+  1167→            errorMap['statusCode'] = (HttpStatus.BAD_REQUEST)
+  1168→            responseMap['error'] = errorMap
+  1169→            oc.printStackTrace()
+  1170→        }
+  1171→
+  1172→        return responseMap
+  1173→        //}
+  1174→    }
+  1175→
+  1176→
+  1177→}
+
+<system-reminder>
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+</system-reminder>
