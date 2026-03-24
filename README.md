@@ -19,7 +19,7 @@ me2/
 │
 ├── D--Project-lipl-scheduler/          # LIPL scheduler project
 │
-└── D--Project-livguard-d2c/            # Livguard D2C project
+└── D--Project-lipl-d2c/            # LIPL D2C project
     └── memory/
         ├── MEMORY.md
         ├── feedback_pincode_wms.md
@@ -147,9 +147,9 @@ LIPL internal scheduler project — session notes in conversation files.
 
 ---
 
-### 3. livguard-d2c
+### 3. lipl-d2c
 
-Livguard D2C platform — memory covers pincode/WMS integration and test account setup.
+LIPL D2C platform — memory covers pincode/WMS integration and test account setup.
 
 ---
 
