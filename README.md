@@ -19,12 +19,20 @@ me2/
 │
 ├── D--Project-lipl-scheduler/          # LIPL scheduler project
 │
-└── D--Project-lipl-d2c/            # LIPL D2C project
+├── D--Project-livguard-d2c/        # LIPL D2C project
+│   └── memory/
+│       ├── MEMORY.md
+│       ├── feedback_pincode_wms.md
+│       ├── project_ltd2241.md
+│       └── project_test_accounts.md
+│
+└── D--Project-livguard-ecomm/      # Livguard e-commerce (Next.js)
     └── memory/
         ├── MEMORY.md
-        ├── feedback_pincode_wms.md
-        ├── project_ltd2241.md
-        └── project_test_accounts.md
+        ├── user_profile.md
+        ├── feedback_ask_before_implementing.md
+        ├── project_cart_context.md
+        └── project_cart_empty_state.md
 ```
 
 ---
@@ -147,9 +155,32 @@ LIPL internal scheduler project — session notes in conversation files.
 
 ---
 
-### 3. lipl-d2c
+### 3. livguard-d2c
 
 LIPL D2C platform — memory covers pincode/WMS integration and test account setup.
+
+---
+
+### 4. livguard-ecomm
+
+Livguard e-commerce storefront built with Next.js 16 App Router + React 19.
+
+#### Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16.2.2 (App Router) |
+| UI | React 19.2.4 |
+| Language | TypeScript (strict mode) |
+| Styling | CSS Modules |
+| Auth | Cookie-based token via `/api/auth/set-token` |
+| State | React Context (UserContext, CartContext) |
+
+#### Key Architecture Decisions
+
+- **CartContext** is the single source of truth for cart data — exposes `cartData`, `itemCount`, `addToCart`, `refreshCart`. Cart page and navbar both consume from `useCart()` — no duplicate API calls.
+- **Auth-aware cart** — CartContext subscribes to `isAuthenticated` from UserContext; fetches cart on login, clears on logout without an API call.
+- **Cart empty state** — API returns `statuscode: 204 / status: "NO_CONTENT"` for empty cart (not 200 with empty array). Always handle both cases.
 
 ---
 
