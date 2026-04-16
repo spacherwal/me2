@@ -8,6 +8,14 @@
 
 ```
 me2/
+├── global/                             # User-level memory — applies across all projects
+│   └── memory/
+│       ├── MEMORY.md
+│       ├── feedback_pincode_wms.md
+│       ├── feedback_memory_lookup.md
+│       ├── reference_me2_repo.md
+│       └── project_livguard.md
+│
 ├── D--Project-integration-service/     # Spring Boot integration microservice
 │   └── memory/
 │       ├── MEMORY.md                        # Index of all memories
