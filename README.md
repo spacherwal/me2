@@ -14,7 +14,9 @@ me2/
 │   │   ├── figma-nextjs.md             # Figma URL → Next.js implementation
 │   │   ├── ui-feedback-from-image.md  # Screenshot → structured UI/UX feedback
 │   │   ├── prometheus-nextjs.md        # Prometheus + Grafana setup for Next.js
-│   │   └── ec2-monitoring.md           # Full observability stack on Ubuntu EC2 (Node Exporter + prom-client + Prometheus + Loki + Promtail + Grafana)
+│   │   ├── ec2-monitoring.md           # Full observability stack on Ubuntu EC2 (Node Exporter + prom-client + Prometheus + Loki + Promtail + Grafana)
+│   │   ├── grafana-monitoring-stack.md # Step-by-step monitoring stack install for QA/DevOps (all binaries in /opt/monitoring)
+│   │   └── nextjs-ubuntu-aws-deploy.md # Next.js deploy on Ubuntu EC2 via Bitbucket + ALB + Nginx + PM2 + SSL
 │   │
 │   └── D--Project-livguard-ecomm/     # Project-scoped skills
 │       └── figma-livguard.md          # Livguard Figma file → code (file key pre-configured)
@@ -219,6 +221,8 @@ Custom slash commands (`/skill-name`) built for Claude Code. Install by copying 
 | `ui-feedback-from-image` | `/ui-feedback-from-image <path>` | Reads a screenshot and gives structured feedback across 12 UX/UI areas: hierarchy, typography, color, spacing, navigation, CTAs, forms, states, trust, mobile, IA, copy. Ends with a top-5 priority list. |
 | `prometheus-nextjs` | `/prometheus-nextjs` | Full Prometheus + Grafana setup for Next.js: `prom-client` integration, `/api/metrics` route, `instrumentation.ts`, Prometheus scrape config, Grafana data source + dashboard import, optional Loki for logs, troubleshooting table |
 | `ec2-monitoring` | `/ec2-monitoring` | Complete observability stack on Ubuntu EC2: Node Exporter (host metrics) + prom-client (app metrics) + Prometheus + Loki + Promtail + Grafana — includes architecture flowgraph, all config files, systemd unit files, dashboard IDs, and EC2 security group port reference |
+| `grafana-monitoring-stack` | `/grafana-monitoring-stack` | Battle-tested monitoring stack guide written for QA/DevOps engineers — all binaries installed in `/opt/monitoring`, includes pre-check (RAM/disk), port plan, phases 1–9, daily management commands, full troubleshooting section, and Grafana Cloud alternative |
+| `nextjs-ubuntu-aws-deploy` | `/nextjs-ubuntu-aws-deploy` | Full Next.js deployment guide: Bitbucket SSH → clone → env → build → PM2 → Nginx → AWS ALB Target Group registration → SSL (Certbot) → Bitbucket Pipeline auto-deploy. Includes 502 troubleshooting checklist and quick reference card |
 
 ### Project-level (livguard-ecomm only)
 
