@@ -8,6 +8,15 @@
 
 ```
 me2/
+├── skills/                             # Custom Claude Code slash commands
+│   ├── user-level/                     # ~/.claude/commands/ — available in all projects
+│   │   ├── checkout-ui-review.md       # Review checkout screen code for UX issues
+│   │   ├── figma-nextjs.md             # Figma URL → Next.js implementation
+│   │   └── ui-feedback-from-image.md  # Screenshot → structured UI/UX feedback
+│   │
+│   └── D--Project-livguard-ecomm/     # Project-scoped skills
+│       └── figma-livguard.md          # Livguard Figma file → code (file key pre-configured)
+│
 ├── global/                             # User-level memory — applies across all projects
 │   └── memory/
 │       ├── MEMORY.md
@@ -37,10 +46,13 @@ me2/
 └── D--Project-livguard-ecomm/      # Livguard e-commerce (Next.js)
     └── memory/
         ├── MEMORY.md
-        ├── user_profile.md
         ├── feedback_ask_before_implementing.md
+        ├── feedback_no_any_type.md
         ├── project_cart_context.md
-        └── project_cart_empty_state.md
+        ├── project_products_page.md
+        ├── project_session_apr15.md
+        ├── project_session_apr16.md
+        └── reference_me2_repo.md
 ```
 
 ---
@@ -189,6 +201,26 @@ Livguard e-commerce storefront built with Next.js 16 App Router + React 19.
 - **CartContext** is the single source of truth for cart data — exposes `cartData`, `itemCount`, `addToCart`, `refreshCart`. Cart page and navbar both consume from `useCart()` — no duplicate API calls.
 - **Auth-aware cart** — CartContext subscribes to `isAuthenticated` from UserContext; fetches cart on login, clears on logout without an API call.
 - **Cart empty state** — API returns `statuscode: 204 / status: "NO_CONTENT"` for empty cart (not 200 with empty array). Always handle both cases.
+
+---
+
+## Skills
+
+Custom slash commands (`/skill-name`) built for Claude Code. Install by copying to `~/.claude/commands/` (user-level) or `.claude/commands/` inside a project (project-level).
+
+### User-level (all projects)
+
+| Skill | Usage | Description |
+|-------|-------|-------------|
+| `checkout-ui-review` | `/checkout-ui-review` | Reads checkout code and flags UX issues: exposed IDs, dead buttons, missing progress indicators, mobile CTA placement, payment pre-selection sync, image error loops |
+| `figma-nextjs` | `/figma-nextjs <figma-url>` | Full Figma → Next.js workflow: fetches design data, extracts tokens, handles Tailwind v3/v4, Framer Motion types, App Router conventions |
+| `ui-feedback-from-image` | `/ui-feedback-from-image <path>` | Reads a screenshot and gives structured feedback across 12 UX/UI areas: hierarchy, typography, color, spacing, navigation, CTAs, forms, states, trust, mobile, IA, copy. Ends with a top-5 priority list. |
+
+### Project-level (livguard-ecomm only)
+
+| Skill | Usage | Description |
+|-------|-------|-------------|
+| `figma-livguard` | `/figma-livguard` | Livguard-specific Figma → code. File key pre-configured (`7AW0hKHcyl9yZUOvRYSA8j`), component map included, design tokens resolved, known quirks documented |
 
 ---
 
