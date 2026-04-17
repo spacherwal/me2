@@ -12,7 +12,8 @@ me2/
 │   ├── user-level/                     # ~/.claude/commands/ — available in all projects
 │   │   ├── checkout-ui-review.md       # Review checkout screen code for UX issues
 │   │   ├── figma-nextjs.md             # Figma URL → Next.js implementation
-│   │   └── ui-feedback-from-image.md  # Screenshot → structured UI/UX feedback
+│   │   ├── ui-feedback-from-image.md  # Screenshot → structured UI/UX feedback
+│   │   └── prometheus-nextjs.md        # Prometheus + Grafana setup for Next.js
 │   │
 │   └── D--Project-livguard-ecomm/     # Project-scoped skills
 │       └── figma-livguard.md          # Livguard Figma file → code (file key pre-configured)
@@ -215,6 +216,7 @@ Custom slash commands (`/skill-name`) built for Claude Code. Install by copying 
 | `checkout-ui-review` | `/checkout-ui-review` | Reads checkout code and flags UX issues: exposed IDs, dead buttons, missing progress indicators, mobile CTA placement, payment pre-selection sync, image error loops |
 | `figma-nextjs` | `/figma-nextjs <figma-url>` | Full Figma → Next.js workflow: fetches design data, extracts tokens, handles Tailwind v3/v4, Framer Motion types, App Router conventions |
 | `ui-feedback-from-image` | `/ui-feedback-from-image <path>` | Reads a screenshot and gives structured feedback across 12 UX/UI areas: hierarchy, typography, color, spacing, navigation, CTAs, forms, states, trust, mobile, IA, copy. Ends with a top-5 priority list. |
+| `prometheus-nextjs` | `/prometheus-nextjs` | Full Prometheus + Grafana setup for Next.js: `prom-client` integration, `/api/metrics` route, `instrumentation.ts`, Prometheus scrape config, Grafana data source + dashboard import, optional Loki for logs, troubleshooting table |
 
 ### Project-level (livguard-ecomm only)
 
