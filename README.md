@@ -16,7 +16,8 @@ me2/
 │   │   ├── prometheus-nextjs.md        # Prometheus + Grafana setup for Next.js
 │   │   ├── ec2-monitoring.md           # Full observability stack on Ubuntu EC2 (Node Exporter + prom-client + Prometheus + Loki + Promtail + Grafana)
 │   │   ├── grafana-monitoring-stack.md # Step-by-step monitoring stack install for QA/DevOps (all binaries in /opt/monitoring)
-│   │   └── nextjs-ubuntu-aws-deploy.md # Next.js deploy on Ubuntu EC2 via Bitbucket + ALB + Nginx + PM2 + SSL
+│   │   ├── nextjs-ubuntu-aws-deploy.md # Next.js deploy on Ubuntu EC2 via Bitbucket + ALB + Nginx + PM2 + SSL
+│   │   └── cicd_skill.md               # Bitbucket Pipelines → S3 → CodeDeploy → EC2 Ubuntu setup & debugging guide
 │   │
 │   └── D--Project-livguard-ecomm/     # Project-scoped skills
 │       └── figma-livguard.md          # Livguard Figma file → code (file key pre-configured)
@@ -223,6 +224,7 @@ Custom slash commands (`/skill-name`) built for Claude Code. Install by copying 
 | `ec2-monitoring` | `/ec2-monitoring` | Complete observability stack on Ubuntu EC2: Node Exporter (host metrics) + prom-client (app metrics) + Prometheus + Loki + Promtail + Grafana — includes architecture flowgraph, all config files, systemd unit files, dashboard IDs, and EC2 security group port reference |
 | `grafana-monitoring-stack` | `/grafana-monitoring-stack` | Battle-tested monitoring stack guide written for QA/DevOps engineers — all binaries installed in `/opt/monitoring`, includes pre-check (RAM/disk), port plan, phases 1–9, daily management commands, full troubleshooting section, and Grafana Cloud alternative |
 | `nextjs-ubuntu-aws-deploy` | `/nextjs-ubuntu-aws-deploy` | Full Next.js deployment guide: Bitbucket SSH → clone → env → build → PM2 → Nginx → AWS ALB Target Group registration → SSL (Certbot) → Bitbucket Pipeline auto-deploy. Includes 502 troubleshooting checklist and quick reference card |
+| `cicd_skill` | `/cicd_skill` | Complete CI/CD setup & debugging guide: Bitbucket Pipelines → S3 → AWS CodeDeploy → EC2 Ubuntu. Covers IAM setup, CodeDeploy agent, deployment scripts, Slack notifications, and 6 real failure lessons (bootstrap loop, npm ci lock file mismatch, NVM path issues, wrong Docker image, variable scoping, environment name mismatch) |
 
 ### Project-level (livguard-ecomm only)
 
