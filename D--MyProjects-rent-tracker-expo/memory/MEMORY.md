@@ -1,0 +1,4 @@
+- [SDK 54 upgrade](rent-tracker-sdk54.md) — on Expo SDK 54; keep react-dom pinned to 19.1.0 or npm install ERESOLVEs
+- [Dev run over USB](dev-run-usb.md) — must run via USB+adb reverse; LAN/tunnel blocked (Public wifi, no admin, ngrok blocked)
+- [APK build DONE](next-build-apk.md) — first preview APK built 2026-07-05; Expo account spacherwal03, project linked; next target = expense categories
+- [Git: personal account](git-personal-account.md) — use personal GitHub identity for this repo, never the work email

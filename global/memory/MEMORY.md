@@ -6,6 +6,7 @@
 
 ## References
 - [reference_me2_repo.md](reference_me2_repo.md) — GitHub repo (spacherwal/me2) where session learnings are pushed across all projects
+- [reference_gsd_tutorial.md](reference_gsd_tutorial.md) — Complete GSD command reference: all /gsd-* commands, workflows, file structure, and config
 
 ## Projects
 - [project_livguard.md](project_livguard.md) — Livguard brand site Figma → React conversion; in progress, moving to a separate React project
